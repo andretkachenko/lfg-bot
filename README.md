@@ -1,11 +1,11 @@
 # lfg-bot
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)  
-Discord  Bot to set up #looking-for-group channel
-This simple bot will let you set up separate lfg channel, and then send embedded messages to show that you are looking for a group.
-All messages, which are not commands from [existing commands list](#existing-commands) will be deleted immediately.
-Commands will be deleted right after processing.
-To accept or decline event, an user can click on 👍 or 👎 emoji respectively. 
-All other reactions will be deleted in order to prevent reaction spam and trolling.
+Discord  Bot to set up #looking-for-group channel.  
+This simple bot will let you set up separate lfg channel, and then send embedded messages to show that you are looking for a group.  
+All messages, which are not commands from [existing commands list](#existing-commands) will be deleted immediately.  
+Commands will be deleted right after processing.  
+To accept or decline event, an user can click on 👍 or 👎 emoji respectively.  
+All other reactions will be deleted in order to prevent reaction spam and trolling.  
 
 ## Table of Contents
 - [Chronicler-bot](#lfg-bot)
@@ -21,12 +21,10 @@ All other reactions will be deleted in order to prevent reaction spam and trolli
 
 ## Existing commands
 List of available commands:
-```
-lfg help - get info about bot
-lfg setup - make chanell, in which the message was sent, lfg channel. Bot will only react to messages in the lfg channel
-lfg ignore [message] - add message to the lfg channel. Other messages (ignoring commands) will be deleted immediately from lfg channel. Example: `lfg ignore This message is introductory thus should not be deleted`
-lfg start [description] | [game name] | [when (optional)] - add lfg message to the lfg channel. Example: `lfg start Let's play some Dota | Dota 2 | In 30 minutes` or `lfg start How about one match in CS? | CS:GO`. Using this command without description or game will lead to warning sent to the channel.
-```
+- `lfg help` - get info about bot
+- `lfg setup` - make chanell, in which the message was sent, lfg channel. Bot will only react to messages in the lfg channel
+- `lfg ignore [message]` - add message to the lfg channel. Other messages (ignoring commands) will be deleted immediately from lfg channel. Example: `lfg ignore This message is introductory thus should not be deleted`
+- `lfg start [description] | [game name] | [when (optional)]` - add lfg message to the lfg channel. Example: `lfg start Let's play some Dota | Dota 2 | In 30 minutes` or `lfg start How about one match in CS? | CS:GO`. Using this command without description or game will lead to warning sent to the channel.
 
 *You can change command prefix ('lfg ' by default) in your .env (PREFIX=lfg replace with PREFIX=your-sign')*
 
