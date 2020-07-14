@@ -7,8 +7,6 @@ import { BotCommand } from "../enums/BotCommand";
 export class LfgMessageHandlers {
 	private mongoConnector: MongoConnector
 	private config: Config
-	private acceptSign: string = ':heavy_plus_sign:'
-	private declineSign: string = ':heavy_minus_sign:'
 
 	constructor(mongoConnector: MongoConnector, config: Config) {
 		this.mongoConnector = mongoConnector
