@@ -1,0 +1,45 @@
+{
+  "name": "lfg-bot",
+  "version": "1.0.0",
+  "description": "discord bot to set up #looking-for-group channel",
+  "main": "build/main.js",
+  "author": "andretkachenko",
+  "license": "MIT",
+  "dependencies": {
+    "@types/debug": "^4.1.5",
+    "@types/node": "^14.0.1",
+    "@types/ws": "^7.2.4",
+    "@types/mongodb": "^3.5.18",
+    "debug": "^4.1.1",
+    "discord.js": "^12.2.0",
+    "dotenv": "^8.2.0",
+    "mongodb": "^3.5.7",
+    "node": "^14.2.0",
+    "nodemon": "^2.0.4",
+    "tslint": "^6.1.2",
+    "tslint-eslint-rules": "^5.4.0",
+    "typescript": "^3.9.2",
+    "ws": "^7.3.0"
+  },
+  "scripts": {
+    "debug": "node .",
+    "build-ts": "tsc",
+    "postinstall": "npm run build-ts",
+    "start": "npm run serve",
+    "serve": "node build/main.js",
+    "watch-node": "nodemon build/main.js",
+    "watch-ts": "tsc -w"
+  },
+  "engines": {
+    "node": "12.16.3",
+    "npm": "6.14.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://https://github.com/AndreTkachenkoOrg/lfg-bot.git"
+  },
+  "bugs": {
+    "url": "https://https://github.com/AndreTkachenkoOrg/lfg-bot/issues"
+  },
+  "homepage": "https://https://github.com/AndreTkachenkoOrg/lfg-bot#readme"
+}
