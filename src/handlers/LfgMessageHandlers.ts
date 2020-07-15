@@ -1,12 +1,42 @@
-import { Message, MessageEmbed, MessageReaction } from "discord.js";
+import { Message, MessageEmbed, MessageReaction, MessageCollector, Channel, DMChannel, User } from "discord.js";
 import { MongoConnector } from "../db/MongoConnector";
 import { Config } from "../config";
 import { LfgChannel } from "../entities/LfgChannel";
 import { BotCommand } from "../enums/BotCommand";
+import { EventOptions } from "../entities/EventOptions";
+
+type Validation = (response: string | undefined) => boolean
+class SetupStep {
+	question: string
+	warning: string
+	required: boolean
+	private validation: Validation
+
+	constructor(question: string, warning: string, validation: Validation, required: boolean) {
+		this.question = question
+		this.warning = warning
+		this.validation = validation
+		this.required = required
+	}
+
+	public skipped(response: string | undefined): boolean {
+		return response && response === 'skip' ? true : false
+	}
+
+	public validate(response: string | undefined): boolean {
+		if (this.validation) return this.validation(response)
+		else return true
+	}
+}
 
 export class LfgMessageHandlers {
 	private mongoConnector: MongoConnector
 	private config: Config
+	private eventQuestions: SetupStep[] = [
+		new SetupStep('What game would you like to play?', 'Game should be filled.', (response) => { return response && response !== "skip" ? true : false }, true),
+		new SetupStep('When? (send "skip" if you don\'t want to fill the field)', 'Error processing your response', (response) => { return response ? true : false }, false),
+		new SetupStep('How would you describe this event? (send "skip" if you don\'t want to fill the field)', 'Error processing your response', (response) => { return response ? true : false }, false)
+	]
 
 	constructor(mongoConnector: MongoConnector, config: Config) {
 		this.mongoConnector = mongoConnector
@@ -14,7 +44,7 @@ export class LfgMessageHandlers {
 	}
 
 	public async validateReaction(reaction: MessageReaction) {
-		if(!["👍", "👎"].includes(reaction.emoji.name)) {
+		if (!["👍", "👎"].includes(reaction.emoji.name)) {
 			reaction.remove()
 		}
 	}
@@ -45,36 +75,101 @@ export class LfgMessageHandlers {
 		}
 	}
 
-	private startLfgEvent(message: Message) {
-		let command = message.content
+	private async startLfgEvent(message: Message) {
 		let channel = message.channel
 		let author = message.author
 
-		let args = command.substr((this.config.prefix + BotCommand.Start).length).split('|')
-		if (args.length < 2) {
-			message.channel.send(`Unable to fetch ${args.length === 0 || args[0] === '' ? "description" : "game"}. Make sure the command is valid.`)
-			return
-		}
-		let description = args[0].trim()
-		let game = args[1].trim()
+		this.setupEvent(message)
+			.then((options: EventOptions | undefined) => {
+				if (options) {
+					let embed = this.createEmbed(author, options)
+					channel.send(embed)
+						.then(msg => {
+							msg.react("👍")
+							msg.react("👎")
+						})
+				}
+			})
+	}
 
+	private createEmbed(author: User, options: EventOptions): MessageEmbed {
 		let embed = new MessageEmbed()
 			.setTitle(author.username + " is looking for a group")
-			.setDescription(description)
 			.setColor("#00D166")
 			.setAuthor(author.username, author.displayAvatarURL())
 			.setThumbnail(this.config.img)
-			.addField("**What**", game, true)
+			.addField("**What**", options.game, true)
 
-		if (args.length > 2) {
-			let date = args[2].trim()
-			embed.addField("**When**", date, true)
+		if (options.description) embed.setDescription(options.description)
+		if (options.when) embed.addField("**When**", options.when, true)
+
+		return embed
+	}
+
+	private async setupEvent(message: Message): Promise<EventOptions | undefined> {
+		let dmChannel = await message.author.createDM()
+		dmChannel.send('Send "abort" if you want to abort event setup process')
+
+		let options = {} as EventOptions
+
+		let game = await this.getDetail(dmChannel, this.eventQuestions[0])
+		.then((game) => {
+			return !game ? this.getDetail(dmChannel, this.eventQuestions[0]) : game
+		})
+
+		if(!game) {
+			dmChannel.send('Event was not set up')
+			return undefined
+		}
+		if(game === "abort") return undefined
+
+		let max = 3
+		let index = 0
+		let when: string | undefined, description: string | undefined
+		while (index < max) {
+			when = await this.getDetail(dmChannel, this.eventQuestions[1])
+			if(when === "abort") return undefined
+			description = await this.getDetail(dmChannel, this.eventQuestions[2])
+			if(description === "abort") return undefined
+			if (!when && !description) {
+				dmChannel.send("Either 'when' or 'description' should be filled.")
+				++index
+			}
+			else break
+		}
+		if (!when && !description) {
+			dmChannel.send("Event was not set up")
+			return undefined
 		}
 
-		channel.send(embed)
-			.then(msg => {
-				msg.react("👍")
-				msg.react("👎")
-			})
+		options.game = game
+		if (when) options.when = when
+		if (description) options.description = description
+
+		return options
+	}
+
+	private async getDetail(channel: DMChannel, step: SetupStep): Promise<string | undefined> {
+		let result: string | undefined
+		return channel.send(step.question)
+			.then(async () => {
+				try {
+					const collected = await channel.awaitMessages(() => { return true; }, { max: 1, time: 30000, errors: ['time'] });
+					let response = collected.first()?.content;
+					if(response === "abort") return response
+					if (!step.required || step.validate(response)) {
+						result =  step.skipped(response) ? undefined : response;
+					}
+					else {
+						channel.send(step.warning);
+					}
+
+					return result;
+				}
+				catch (e) {
+					channel.send('Took to long to respond.');
+					return result;
+				}
+			});
 	}
 }
