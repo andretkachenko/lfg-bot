@@ -1,20 +1,26 @@
-import { Message, MessageEmbed, MessageReaction } from "discord.js";
+import { Message, MessageEmbed, MessageReaction, MessageCollector, Channel, DMChannel, User } from "discord.js";
 import { MongoConnector } from "../db/MongoConnector";
 import { Config } from "../config";
 import { LfgChannel } from "../entities/LfgChannel";
 import { BotCommand } from "../enums/BotCommand";
+import { EventOptions } from "../entities/EventOptions";
+import { EventSetupHandler } from "./EventSetupHandler";
+
+
 
 export class LfgMessageHandlers {
 	private mongoConnector: MongoConnector
 	private config: Config
+	private eventSetupHandler: EventSetupHandler
 
 	constructor(mongoConnector: MongoConnector, config: Config) {
 		this.mongoConnector = mongoConnector
 		this.config = config
+		this.eventSetupHandler = new EventSetupHandler()
 	}
 
 	public async validateReaction(reaction: MessageReaction) {
-		if(!["👍", "👎"].includes(reaction.emoji.name)) {
+		if (!["👍", "👎"].includes(reaction.emoji.name)) {
 			reaction.remove()
 		}
 	}
@@ -45,36 +51,34 @@ export class LfgMessageHandlers {
 		}
 	}
 
-	private startLfgEvent(message: Message) {
-		let command = message.content
+	private async startLfgEvent(message: Message) {
 		let channel = message.channel
 		let author = message.author
 
-		let args = command.substr((this.config.prefix + BotCommand.Start).length).split('|')
-		if (args.length < 2) {
-			message.channel.send(`Unable to fetch ${args.length === 0 || args[0] === '' ? "description" : "game"}. Make sure the command is valid.`)
-			return
-		}
-		let description = args[0].trim()
-		let game = args[1].trim()
+		this.eventSetupHandler.setupEvent(message)
+			.then((options: EventOptions | undefined) => {
+				if (options) {
+					let embed = this.createEmbed(author, options)
+					channel.send(embed)
+						.then(msg => {
+							msg.react("👍")
+							msg.react("👎")
+						})
+				}
+			})
+	}
 
+	private createEmbed(author: User, options: EventOptions): MessageEmbed {
 		let embed = new MessageEmbed()
 			.setTitle(author.username + " is looking for a group")
-			.setDescription(description)
 			.setColor("#00D166")
 			.setAuthor(author.username, author.displayAvatarURL())
 			.setThumbnail(this.config.img)
-			.addField("**What**", game, true)
+			.addField("**What**", options.game, true)
 
-		if (args.length > 2) {
-			let date = args[2].trim()
-			embed.addField("**When**", date, true)
-		}
+		if (options.description) embed.setDescription(options.description)
+		if (options.when) embed.addField("**When**", options.when, true)
 
-		channel.send(embed)
-			.then(msg => {
-				msg.react("👍")
-				msg.react("👎")
-			})
+		return embed
 	}
 }
