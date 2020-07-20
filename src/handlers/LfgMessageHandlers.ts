@@ -9,7 +9,7 @@ import { EventSetupHandler } from "./EventSetupHandler";
 
 
 export class LfgMessageHandlers {
-    private client: Client
+	private client: Client
 	private mongoConnector: MongoConnector
 	private config: Config
 	private eventSetupHandler: EventSetupHandler
@@ -22,8 +22,13 @@ export class LfgMessageHandlers {
 	}
 
 	public async validateReaction(reaction: MessageReaction) {
-		if (!["👍", "👎"].includes(reaction.emoji.name)) {
-			reaction.remove()
+		if (reaction.message.guild) {
+			let lfgChannelId = await this.mongoConnector.lfgChannelRepository.getId(reaction.message.guild.id)
+			if (lfgChannelId !== reaction.message.guild.id) return
+
+			if (!["👍", "👎"].includes(reaction.emoji.name)) {
+				reaction.remove()
+			}
 		}
 	}
 
