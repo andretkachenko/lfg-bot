@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, MessageReaction, MessageCollector, Channel, DMChannel, User } from "discord.js";
+import { Message, MessageEmbed, MessageReaction, MessageCollector, Channel, DMChannel, User, Client } from "discord.js";
 import { MongoConnector } from "../db/MongoConnector";
 import { Config } from "../config";
 import { LfgChannel } from "../entities/LfgChannel";
@@ -9,14 +9,16 @@ import { EventSetupHandler } from "./EventSetupHandler";
 
 
 export class LfgMessageHandlers {
+    private client: Client
 	private mongoConnector: MongoConnector
 	private config: Config
 	private eventSetupHandler: EventSetupHandler
 
-	constructor(mongoConnector: MongoConnector, config: Config) {
+	constructor(mongoConnector: MongoConnector, config: Config, client: Client) {
 		this.mongoConnector = mongoConnector
 		this.config = config
 		this.eventSetupHandler = new EventSetupHandler()
+		this.client = client
 	}
 
 	public async validateReaction(reaction: MessageReaction) {
@@ -54,8 +56,9 @@ export class LfgMessageHandlers {
 	private async startLfgEvent(message: Message) {
 		let channel = message.channel
 		let author = message.author
+		let botId = this.client.user ? this.client.user.id : ""
 
-		this.eventSetupHandler.setupEvent(message)
+		this.eventSetupHandler.setupEvent(message, botId)
 			.then((options: EventOptions | undefined) => {
 				if (options) {
 					let embed = this.createEmbed(author, options)

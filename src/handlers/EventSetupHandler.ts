@@ -1,6 +1,7 @@
 import { Message, GuildCreateChannelOptions, GuildChannel, TextChannel } from "discord.js"
 import { EventOptions } from "../entities/EventOptions"
 import { SetupStep } from "../entities/SetupStep"
+import { Permission } from "../enums/Permissions"
 
 export class EventSetupHandler {
 	private eventQuestions: SetupStep[] = [
@@ -9,8 +10,8 @@ export class EventSetupHandler {
 		new SetupStep('How would you describe this event? (send "skip" if you don\'t want to fill the field)', 'Error processing your response', (response) => { return response ? true : false }, false)
 	]
 	
-	public async setupEvent(message: Message): Promise<EventOptions | undefined> {
-		let channel = await this.createTextChannel(message)
+	public async setupEvent(message: Message, botId: string): Promise<EventOptions | undefined> {
+		let channel = await this.createTextChannel(message, botId)
 		if(!channel) return undefined
 		channel.send(`<@${message.author.id}>, please follow the survey to set up your event.`)
 		channel.send('Send "abort" if you want to abort event setup process')
@@ -94,13 +95,13 @@ export class EventSetupHandler {
     
     
 
-	private async createTextChannel(message: Message): Promise<TextChannel | undefined> {
+	private async createTextChannel(message: Message, botId: string): Promise<TextChannel | undefined> {
 		let user = message.author
 		let channel = message.channel as GuildChannel
 		let guild = message.guild
 		if (guild) {
 			let options: GuildCreateChannelOptions = {
-				permissionOverwrites: [{ id: guild.id, deny: ['VIEW_CHANNEL'] }],
+				permissionOverwrites: [{ id: guild.id, deny: [Permission.VIEW_CHANNEL] }, {id: botId, allow: [Permission.VIEW_CHANNEL] }],
                 type: "text",
                 parent: channel.parent?.id
 			}
@@ -110,7 +111,7 @@ export class EventSetupHandler {
 						ch.overwritePermissions([
 							{
 								id: user ? user.id : "undefined",
-								allow: ['VIEW_CHANNEL'],
+								allow: [Permission.VIEW_CHANNEL],
 							},
 						]);
 						return ch as TextChannel;
