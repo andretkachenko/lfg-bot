@@ -22,11 +22,13 @@ export class LfgMessageHandlers {
 	}
 
 	public async validateReaction(reaction: MessageReaction) {
-		let lfgChannelId = await this.mongoConnector.lfgChannelRepository.getId(reaction.message.channel.id)
-		if (lfgChannelId !== reaction.message.channel.id) return
+		if (reaction.message.guild) {
+			let lfgChannelId = await this.mongoConnector.lfgChannelRepository.getId(reaction.message.guild.id)
+			if (lfgChannelId !== reaction.message.channel.id) return
 
-		if (!["👍", "👎"].includes(reaction.emoji.name)) {
-			reaction.remove()
+			if (!["👍", "👎"].includes(reaction.emoji.name)) {
+				reaction.remove()
+			}
 		}
 	}
 
