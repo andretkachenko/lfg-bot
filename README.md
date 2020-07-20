@@ -21,16 +21,14 @@ All other reactions will be deleted in order to prevent reaction spam and trolli
 
 ## Existing commands
 List of available commands:
-- `lfg help` - get info about bot
-- `lfg setup` - make chanell, in which the message was sent, lfg channel. Bot will only react to messages in the lfg channel
+- `lfg help` - get info about bot and list of existing commands
+- `lfg setup` - make this channel an lfg channel. Bot will only react to messages in the lfg channel
 - `lfg ignore [message]` - add message to the lfg channel. Other messages (ignoring commands) will be deleted immediately from lfg channel. Example: `lfg ignore This message is introductory thus should not be deleted`
-- `lfg start [description] | [game name] | [when (optional)]` - add lfg message to the lfg channel. Example: `lfg start Let's play some Dota | Dota 2 | In 30 minutes` or `lfg start How about one match in CS? | CS:GO`. Using this command without description or game will lead to warning sent to the channel.
-
-*You can change command prefix ('lfg ' by default) in your .env (PREFIX=lfg replace with PREFIX=your-sign')*
+- `lfg start` - add lfg message to the lfg channel. New temp channel will be created, where the user will be prompted to complete survey. User's answers will be collected into an embed and sent to the lfg channel.
 
 ## Want to use at your server?
 Currently the bot is deployed via Heroku and MongoDB Atlas for personal usage.  
-You can use it via [this link](https://discord.com/api/oauth2/authorize?client_id=732697892292395110&permissions=224320&scope=bot)
+You can use it via [this link](https://discord.com/api/oauth2/authorize?client_id=732697892292395110&permissions=268692560&scope=bot)
 In case bot will be shut down or set to be invite-only in future, you can deploy it yourself using [Deployment manual](#deployment-manual).
 
 ## If you found a bug
@@ -48,6 +46,7 @@ If you feel some really cool feature is missing, or you want to make some minor 
 6. Start the app by using ```nodemon build/main.js``` or debug it with your IDE
 
 ## Deployment manual
+*You can change command prefix ('lfg ' by default) in your .env (PREFIX=lfg replace with PREFIX=your-sign')*
 This bot was deployed by me using Heroku and MongoDB Atlas.
 
 ### Set up Discord bot account
