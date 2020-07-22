@@ -78,7 +78,7 @@ export class LfgMessageHandlers {
 
 	private createEmbed(author: User, options: EventOptions): MessageEmbed {
 		let embed = new MessageEmbed()
-			.setTitle(author + " is looking for a group")
+			.setTitle(author.username + " is looking for a group")
 			.setColor("#00D166")
 			.setAuthor(author.username, author.displayAvatarURL())
 			.setThumbnail(this.config.img)
