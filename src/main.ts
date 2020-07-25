@@ -1,9 +1,13 @@
 'use strict'
 
 import express from "express";
+import http from "http";
 const app = express();
 app.get('/', (req, res) => res.send('LFG Bot is up and running'));
 app.listen(process.env.PORT);
+setInterval(() => {
+  http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
+},  280000);
 
 import { Bot } from './discord'
 
