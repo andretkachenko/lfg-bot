@@ -7,12 +7,14 @@
   "license": "MIT",
   "dependencies": {
     "@types/debug": "^4.1.5",
-    "@types/node": "^14.0.1",
-    "@types/ws": "^7.2.4",
     "@types/mongodb": "^3.5.18",
+    "@types/node": "^14.0.26",
+    "@types/ws": "^7.2.4",
     "debug": "^4.1.1",
     "discord.js": "^12.2.0",
     "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "http": "0.0.1-security",
     "mongodb": "^3.5.7",
     "node": "^14.2.0",
     "nodemon": "^2.0.4",
@@ -41,5 +43,8 @@
   "bugs": {
     "url": "https://https://github.com/AndreTkachenkoOrg/lfg-bot/issues"
   },
-  "homepage": "https://https://github.com/AndreTkachenkoOrg/lfg-bot#readme"
+  "homepage": "https://https://github.com/AndreTkachenkoOrg/lfg-bot#readme",
+  "devDependencies": {
+    "@types/express": "^4.17.7"
+  }
 }
