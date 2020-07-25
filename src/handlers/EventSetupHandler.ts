@@ -74,7 +74,7 @@ export class EventSetupHandler {
 		return channel.send(step.question)
 			.then(async () => {
 				try {
-					const collected = await channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'] });
+					const collected = await channel.awaitMessages(filter, { max: 1, time: 50000, errors: ['time'] });
 					let response = collected.first()?.content;
 					if(response === "abort") return response
 					if (!step.required || step.validate(response)) {
