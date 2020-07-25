@@ -28,7 +28,7 @@
     "debug": "node .",
     "build-ts": "tsc",
     "postinstall": "npm run build-ts",
-    "start": "./start.sh",
+    "start": "bash ./start.sh",
     "serve": "node build/main.js",
     "watch-node": "nodemon build/main.js",
     "watch-ts": "tsc -w"
