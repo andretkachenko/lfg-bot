@@ -1,12 +1,11 @@
 'use strict'
 
+import express from "express";
+const app = express();
+app.get('/', (req, res) => res.send('LFG Bot is up and running'));
+app.listen(process.env.PORT);
+
 import { Bot } from './discord'
-import { application } from "express";
 
 const client: Bot = new Bot()
 client.start()
-
-application.get("/", (request, response) => {
-    console.log(Date.now() + " Ping Received");
-    response.sendStatus(200);
-  });

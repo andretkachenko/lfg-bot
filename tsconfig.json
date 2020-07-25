@@ -8,6 +8,7 @@
 		"declaration": false,
 		"strict": true,
 		"sourceMap": true,
+		"esModuleInterop": true,
 		"noImplicitAny": true,
 		"alwaysStrict": true,
 		"typeRoots": [
