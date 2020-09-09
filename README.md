@@ -23,7 +23,7 @@ If you have any issue with the bot functionality, feel free to post an issue in 
 
 ## Need any adjustments?
 If you feel some cool feature is missing, or you want to make some minor tweaks just for your quality of life - feel free to either post an issue in the repo or make a fork and adjust it yourself as you see fit.  
-Please bear in mind: I intend to leave this bot single-purpose, meaning I won't add features which are not related to the idea of creating combined voice-text channels.
+Please bear in mind: I intend to leave this bot single-purpose, meaning I won't add features which are not related to the idea of managing lfg channels.
 
 ## Environment setup
 1. Install NodeJS
