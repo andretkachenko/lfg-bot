@@ -101,19 +101,16 @@ export class EventSetupHandler {
 		let guild = message.guild
 		if (guild) {
 			let options: GuildCreateChannelOptions = {
-				permissionOverwrites: [{ id: guild.id, deny: [Permission.VIEW_CHANNEL] }, {id: botId, allow: [Permission.VIEW_CHANNEL] }],
+				permissionOverwrites: [
+					{ id: guild.id, deny: [Permission.VIEW_CHANNEL] }, 
+					{id: botId, allow: [Permission.VIEW_CHANNEL] },
+					{ id: user ? user.id : "", allow: [Permission.VIEW_CHANNEL] }],
                 type: "text",
                 parent: channel.parent?.id
 			}
 			if (channel) {
 				return guild.channels.create('lfg-setup', options)
 					.then(ch => {
-						ch.overwritePermissions([
-							{
-								id: user ? user.id : "undefined",
-								allow: [Permission.VIEW_CHANNEL],
-							},
-						]);
 						return ch as TextChannel;
 					});
 			}
