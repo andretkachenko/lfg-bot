@@ -41,11 +41,11 @@ export class LfgChannelRepository {
         })
     }
 
-    public async delete(guildId: string, voiceChannelId: string): Promise<boolean> {
+    public async delete(guildId: string): Promise<boolean> {
         let result = false
         let db = this.client.db(this.dbName)
         let textChannels = db.collection(this.lfgChannelCollectionName)
-        return textChannels.deleteOne({ guildId: guildId, voiceChannelId: voiceChannelId })
+        return textChannels.deleteMany({ guildId: guildId })
             .then((deleteResult) => {
                 if (deleteResult.result.ok !== 1) console.log("command not executed correctly: document not deleted")
                 else {

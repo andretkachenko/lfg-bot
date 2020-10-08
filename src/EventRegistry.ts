@@ -6,6 +6,7 @@ import { ProcessEvent } from "./enums/ProcessEvent"
 import { Config } from "./config"
 import { InfoHandlers } from "./handlers/InfoHandlers"
 import { MongoConnector } from "./db/MongoConnector"
+import { ServerHandlers } from "./handlers/ServerHandler"
 
 export class EventRegistry {
     private client: Client
@@ -14,6 +15,7 @@ export class EventRegistry {
     private logger: Logger
     private lfgHandlers: LfgMessageHandlers
     private infoHandlers: InfoHandlers
+    private serverHandlers: ServerHandlers
 
     constructor(client: Client, config: Config) {
         this.client = client
@@ -24,6 +26,7 @@ export class EventRegistry {
         this.logger = new Logger()
         this.lfgHandlers = new LfgMessageHandlers(mongoConnector, config, client)
         this.infoHandlers = new InfoHandlers(config)
+        this.serverHandlers = new ServerHandlers(mongoConnector)
     }
 
     public registerEvents() {
@@ -33,6 +36,7 @@ export class EventRegistry {
         // => Main worker handlers
         this.registerMessageHandler()
         this.registerReactionHandler()
+        this.registerKickHandler()
 
         // => Bot error and warn handlers
         this.client.on(ClientEvent.Error, this.logger.logError)
@@ -68,9 +72,15 @@ export class EventRegistry {
         })
     }
 
+    private registerKickHandler() {
+        this.client.on(ClientEvent.GuildDelete, guild => {
+            this.serverHandlers.handleBotKickedFromServer(guild)
+        })
+    }
+
     private registerProcessHandlers() {
         process.on(ProcessEvent.Exit, () => {
-            const msg = `[nexus-bot] Process exit.`
+            const msg = `[lfg-bot] Process exit.`
             this.logger.logEvent(msg)
             console.log(msg)
             this.client.destroy()
