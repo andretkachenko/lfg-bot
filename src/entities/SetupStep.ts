@@ -1,4 +1,6 @@
-type Validation = (response: string | undefined) => boolean
+import { Message } from "discord.js"
+
+type Validation = (response: Message | undefined) => boolean
 
 export class SetupStep {
 	question: string
@@ -13,11 +15,11 @@ export class SetupStep {
 		this.required = required
 	}
 
-	public skipped(response: string | undefined): boolean {
-		return response && response === 'skip' ? true : false
+	public skipped(response: Message | undefined): boolean {
+		return response && response.content === 'skip' ? true : false
 	}
 
-	public validate(response: string | undefined): boolean {
+	public validate(response: Message | undefined): boolean {
 		if (this.validation) return this.validation(response)
 		else return true
 	}

@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, MessageReaction, MessageCollector, Channel, DMChannel, User, Client } from "discord.js";
+import { Message, MessageEmbed, MessageReaction, MessageCollector, Channel, DMChannel, User, Client, MessageAttachment } from "discord.js";
 import { MongoConnector } from "../db/MongoConnector";
 import { Config } from "../config";
 import { LfgChannel } from "../entities/LfgChannel";
@@ -66,8 +66,10 @@ export class LfgMessageHandlers {
 		this.eventSetupHandler.setupEvent(message, botId)
 			.then((options: EventOptions | undefined) => {
 				if (options) {
-					let embed = this.createEmbed(author, options)
-					channel.send(embed)
+					//let event = this.createEmbed(author, options)
+					let event = this.createEventMessage(author, options)
+					let attachments = this.gatherAttachments(options)
+					channel.send(event, attachments)
 						.then(msg => {
 							msg.react("👍")
 							msg.react("👎")
@@ -76,17 +78,22 @@ export class LfgMessageHandlers {
 			})
 	}
 
-	private createEmbed(author: User, options: EventOptions): MessageEmbed {
-		let embed = new MessageEmbed()
-			.setTitle(author.username + " is looking for a group")
-			.setColor("#00D166")
-			.setAuthor(author.username, author.displayAvatarURL())
-			.setThumbnail(this.config.img)
-			.addField("**What**", options.game, true)
+	private createEventMessage(author: User, options: EventOptions): string {
+		let msg = `>>> **${author.username}** is looking for a group!`
+		if(options.description) msg += 	`\n**Description:** ${options.description}`
+		msg += 							`\n**What:** ${options.game}`
+		if(options.when) msg += 		`\n**When:** ${options.when}`
 
-		if (options.description) embed.setDescription(options.description)
-		if (options.when) embed.addField("**When**", options.when, true)
+		return msg
+	}
 
-		return embed
+	private gatherAttachments(options: EventOptions): MessageAttachment[] {
+		let gameAttachements = options.game.attachments.array()
+		let whenAttachements = options.when.attachments.array()
+		let descriptionAttachements = options.description.attachments.array()
+
+		return gameAttachements
+			.concat(whenAttachements)
+			.concat(descriptionAttachements)
 	}
 }
