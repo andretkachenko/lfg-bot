@@ -5,7 +5,7 @@ import { Permission } from "../enums/Permissions"
 
 export class EventSetupHandler {
 	private eventQuestions: SetupStep[] = [
-		new SetupStep('What game would you like to play?', 'Game should be filled.', (response) => { return response && response !== "skip" ? true : false }, true),
+		new SetupStep('What game would you like to play?', 'Game should be filled.', (response) => { return response && response?.content !== "skip" ? true : false }, true),
 		new SetupStep('When? (send "skip" if you don\'t want to fill the field)', 'Error processing your response', (response) => { return response ? true : false }, false),
 		new SetupStep('How would you describe this event? (send "skip" if you don\'t want to fill the field)', 'Error processing your response', (response) => { return response ? true : false }, false)
 	]
@@ -29,22 +29,22 @@ export class EventSetupHandler {
 			channel.delete()
 			return undefined
 		}
-		if(game === "abort") {
+		if(game?.content === "abort") {
 		channel.delete()
 		return undefined
 		}
 
 		let max = 3
 		let index = 0
-		let when: string | undefined, description: string | undefined
+		let when: Message | undefined, description: Message | undefined
 		while (index < max) {
 			when = await this.getDetail(channel, this.eventQuestions[1], m => m.author.id === message.author.id)
-			if(when === "abort") {
+			if(when?.content === "abort") {
 				channel.delete()
 				return undefined
 			}
 			description = await this.getDetail(channel, this.eventQuestions[2], m => m.author.id === message.author.id)
-			if(description === "abort") {
+			if(description?.content === "abort") {
 				channel.delete()
 				return undefined
 			}
@@ -69,14 +69,14 @@ export class EventSetupHandler {
 		return options
 	}
 
-	private async getDetail(channel: TextChannel, step: SetupStep, filter: (m: Message) => boolean): Promise<string | undefined> {
-		let result: string | undefined
+	private async getDetail(channel: TextChannel, step: SetupStep, filter: (m: Message) => boolean): Promise<Message | undefined> {
+		let result: Message | undefined
 		return channel.send(step.question)
 			.then(async () => {
 				try {
 					const collected = await channel.awaitMessages(filter, { max: 1, time: 50000, errors: ['time'] });
-					let response = collected.first()?.content;
-					if(response === "abort") return response
+					let response = collected.first()
+					if(response?.content === "abort") return response
 					if (!step.required || step.validate(response)) {
 						result =  step.skipped(response) ? undefined : response;
 					}
@@ -102,9 +102,9 @@ export class EventSetupHandler {
 		if (guild) {
 			let options: GuildCreateChannelOptions = {
 				permissionOverwrites: [
-					{ id: guild.id, deny: [Permission.VIEW_CHANNEL] }, 
-					{id: botId, allow: [Permission.VIEW_CHANNEL] },
-					{ id: user ? user.id : "", allow: [Permission.VIEW_CHANNEL] }],
+					{ id: guild.id, deny: [Permission.SEND_MESSAGES] }, 
+					{id: botId, allow: [Permission.SEND_MESSAGES] },
+					{ id: user ? user.id : "", allow: [Permission.SEND_MESSAGES] }],
                 type: "text",
                 parent: channel.parent?.id
 			}

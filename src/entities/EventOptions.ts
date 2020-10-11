@@ -1,5 +1,7 @@
+import { Message } from "discord.js";
+
 export interface EventOptions {
-    game: string
-    when: string
-    description: string
+    game: Message
+    when: Message
+    description: Message
 }
