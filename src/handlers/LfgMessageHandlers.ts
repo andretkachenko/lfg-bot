@@ -88,9 +88,9 @@ export class LfgMessageHandlers {
 	}
 
 	private gatherAttachments(options: EventOptions): MessageAttachment[] {
-		let gameAttachements = options.game.attachments.array()
-		let whenAttachements = options.when.attachments.array()
-		let descriptionAttachements = options.description.attachments.array()
+		let gameAttachements = options.game ? options.game.attachments.array() : new Array<MessageAttachment>()
+		let whenAttachements = options.when ? options.when.attachments.array() : new Array<MessageAttachment>()
+		let descriptionAttachements = options.description ? options.description.attachments.array() : new Array<MessageAttachment>()
 
 		return gameAttachements
 			.concat(whenAttachements)
