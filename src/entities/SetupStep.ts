@@ -16,7 +16,7 @@ export class SetupStep {
 	}
 
 	public skipped(response: Message | undefined): boolean {
-		return response && response.content === 'skip' ? true : false
+		return response && response.content.toLowerCase() === 'skip' ? true : false
 	}
 
 	public validate(response: Message | undefined): boolean {
