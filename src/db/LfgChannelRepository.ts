@@ -13,16 +13,16 @@ export class LfgChannelRepository {
         this.lfgChannelCollectionName = config.lfgChannelCollectionName
     }
 
-    public async getId(guildId: string): Promise<string> {
-        let channelId: string = ''
+    public async isLfgChannel(guildId: string, channelId: string): Promise<boolean> {
+        let isLfgChannel = false
         let db = this.client.db(this.dbName);
         let lfgChannels = db.collection<LfgChannel>(this.lfgChannelCollectionName);
-        let aggregation = lfgChannels.find({ guildId: guildId })
+        let aggregation = lfgChannels.find({ guildId: guildId, channelId: channelId })
         return aggregation.toArray()
             .then(channels => {
-                let lfgChannel = channels[0];
-                if (lfgChannel !== undefined) channelId = lfgChannel.channelId
-                return channelId
+                let lfgChannel = channels[0]
+                isLfgChannel = lfgChannel !== undefined
+                return isLfgChannel
             })
     }
 

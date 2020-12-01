@@ -23,8 +23,8 @@ export class LfgMessageHandlers {
 
 	public async validateReaction(reaction: MessageReaction) {
 		if (reaction.message.guild) {
-			let lfgChannelId = await this.mongoConnector.lfgChannelRepository.getId(reaction.message.guild.id)
-			if (lfgChannelId !== reaction.message.channel.id) return
+			let isLfgChannel = await this.mongoConnector.lfgChannelRepository.isLfgChannel(reaction.message.guild.id, reaction.message.channel.id)
+			if (!isLfgChannel) return
 
 			if (!["👍", "👎"].includes(reaction.emoji.name)) {
 				reaction.remove()
@@ -40,8 +40,8 @@ export class LfgMessageHandlers {
 				return
 			}
 
-			let lfgChannelId = await this.mongoConnector.lfgChannelRepository.getId(message.guild.id)
-			if (lfgChannelId !== message.channel.id) return
+			let isLfgChannel = await this.mongoConnector.lfgChannelRepository.isLfgChannel(message.guild.id, message.channel.id)
+			if (!isLfgChannel) return
 			if (message.content.indexOf(this.config.prefix + BotCommand.Ignore) >= 0) return
 			if (message.content.indexOf(this.config.prefix + BotCommand.Start) >= 0) {
 				this.startLfgEvent(message)
@@ -66,7 +66,6 @@ export class LfgMessageHandlers {
 		this.eventSetupHandler.setupEvent(message, botId)
 			.then((options: EventOptions | undefined) => {
 				if (options) {
-					//let event = this.createEmbed(author, options)
 					let event = this.createEventMessage(author, options)
 					let attachments = this.gatherAttachments(options)
 					channel.send(event, attachments)
