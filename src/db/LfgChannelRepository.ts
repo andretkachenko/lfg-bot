@@ -12,7 +12,6 @@ export class LfgChannelRepository {
         this.dbName = config.mongoDb
         this.lfgChannelCollectionName = config.lfgChannelCollectionName
     }
-
     public async getLfgChannel(guildId: string, channelId: string): Promise<LfgChannel> {
         let lfgChannel : LfgChannel
         let db = this.client.db(this.dbName);
