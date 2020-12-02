@@ -13,16 +13,15 @@ export class LfgChannelRepository {
         this.lfgChannelCollectionName = config.lfgChannelCollectionName
     }
 
-    public async isLfgChannel(guildId: string, channelId: string): Promise<boolean> {
-        let isLfgChannel = false
+    public async getLfgChannel(guildId: string, channelId: string): Promise<LfgChannel> {
+        let lfgChannel : LfgChannel
         let db = this.client.db(this.dbName);
         let lfgChannels = db.collection<LfgChannel>(this.lfgChannelCollectionName);
         let aggregation = lfgChannels.find({ guildId: guildId, channelId: channelId })
         return aggregation.toArray()
             .then(channels => {
-                let lfgChannel = channels[0]
-                isLfgChannel = lfgChannel !== undefined
-                return isLfgChannel
+                lfgChannel = channels[0]
+                return lfgChannel
             })
     }
 
@@ -31,6 +30,21 @@ export class LfgChannelRepository {
         let db = this.client.db(this.dbName)
         let lfgChannels = db.collection(this.lfgChannelCollectionName)
         return lfgChannels.insertOne(lfgChannel)
+        .then((insertResult) => {
+            if (insertResult.result.ok !== 1) console.log("command not executed correctly: document not inserted")
+            else {
+                console.log("document inserted")
+                result = true
+            }
+            return result
+        })
+    }
+
+    public async setModeration(lfgChannel: LfgChannel): Promise<boolean> {
+        let result = false
+        let db = this.client.db(this.dbName)
+        let lfgChannels = db.collection(this.lfgChannelCollectionName)
+        return lfgChannels.updateOne({guildId: lfgChannel.guildId, channelId: lfgChannel.channelId}, { $set: { moderate: lfgChannel.moderate}})
         .then((insertResult) => {
             if (insertResult.result.ok !== 1) console.log("command not executed correctly: document not inserted")
             else {

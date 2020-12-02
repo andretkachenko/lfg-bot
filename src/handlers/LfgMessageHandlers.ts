@@ -23,8 +23,8 @@ export class LfgMessageHandlers {
 
 	public async validateReaction(reaction: MessageReaction) {
 		if (reaction.message.guild) {
-			let isLfgChannel = await this.mongoConnector.lfgChannelRepository.isLfgChannel(reaction.message.guild.id, reaction.message.channel.id)
-			if (!isLfgChannel) return
+			let lfgChannel = await this.mongoConnector.lfgChannelRepository.getLfgChannel(reaction.message.guild.id, reaction.message.channel.id)
+			if (!lfgChannel || !lfgChannel.moderate) return
 
 			if (!["👍", "👎"].includes(reaction.emoji.name)) {
 				reaction.remove()
@@ -33,29 +33,41 @@ export class LfgMessageHandlers {
 	}
 
 	public async handleLfgCalls(message: Message) {
-		if (message.guild?.id) {
-			if (message.content.indexOf(this.config.prefix + BotCommand.Setup) >= 0) {
-				this.setupLfgChannel(message)
-				message.delete()
-				return
-			}
+		if (!message.guild?.id) return
+		if (message.content.indexOf(this.config.prefix + BotCommand.Ignore) >= 0 && this.canManageChannels(message)) return
 
-			let isLfgChannel = await this.mongoConnector.lfgChannelRepository.isLfgChannel(message.guild.id, message.channel.id)
-			if (!isLfgChannel) return
-			if (message.content.indexOf(this.config.prefix + BotCommand.Ignore) >= 0) return
-			if (message.content.indexOf(this.config.prefix + BotCommand.Start) >= 0) {
-				this.startLfgEvent(message)
-			}
-			message.delete()
+		let lfgChannel = await this.mongoConnector.lfgChannelRepository.getLfgChannel(message.guild.id, message.channel.id)		
+		let isLfgCmd = false
+
+		if (message.content.indexOf(this.config.prefix + BotCommand.Setup) >= 0 && !lfgChannel && this.canManageChannels(message)) {
+			this.setupLfgChannel(message)
+			isLfgCmd = true
 		}
+		if (message.content.indexOf(this.config.prefix + BotCommand.Moderate) >= 0 && this.canManageChannels(message)) {
+			this.updateModerationOption(message)
+			isLfgCmd = true
+		}
+		if (message.content.indexOf(this.config.prefix + BotCommand.Start) >= 0 && lfgChannel) {
+			this.startLfgEvent(message)
+			isLfgCmd = true
+		}
+		if(lfgChannel.moderate || isLfgCmd) message.delete()
+	}
+
+	private async updateModerationOption(message: Message) {
+		if (!message.guild?.id) return
+		let moderateCmd = this.config.prefix + BotCommand.Moderate
+		let cmd = message.content.substring(moderateCmd.length + 1)
+		let args = cmd.split(' ')
+		let lfgChannel: LfgChannel = { guildId: message.guild.id, channelId: args[0].substring(2, args[0].length-1), moderate: args[1] == '1' }
+		this.mongoConnector.lfgChannelRepository.setModeration(lfgChannel)
 	}
 
 	private async setupLfgChannel(message: Message) {
-		if (message.guild?.id) {
-			let lfgChannel: LfgChannel = { guildId: message.guild.id, channelId: message.channel.id }
-			await this.mongoConnector.lfgChannelRepository.add(lfgChannel)
-			message.channel.send("this channel is now set up as lfg channel")
-		}
+		if (!message.guild?.id) return
+		let lfgChannel: LfgChannel = { guildId: message.guild.id, channelId: message.channel.id, moderate: true }
+		await this.mongoConnector.lfgChannelRepository.add(lfgChannel)
+		message.channel.send("this channel is now set up as lfg channel")
 	}
 
 	private async startLfgEvent(message: Message) {
@@ -79,9 +91,9 @@ export class LfgMessageHandlers {
 
 	private createEventMessage(author: User, options: EventOptions): string {
 		let msg = `>>> **${author.username}** is looking for a group!`
-		if(options.description) msg += 	`\n**Description:** ${options.description}`
-		msg += 							`\n**What:** ${options.game}`
-		if(options.when) msg += 		`\n**When:** ${options.when}`
+		if (options.description) msg += `\n**Description:** ${options.description}`
+		msg += `\n**What:** ${options.game}`
+		if (options.when) msg += `\n**When:** ${options.when}`
 
 		return msg
 	}
@@ -95,4 +107,8 @@ export class LfgMessageHandlers {
 			.concat(whenAttachements)
 			.concat(descriptionAttachements)
 	}
+
+    private canManageChannels(message: Message): boolean {
+        return message.member !== null && message.member.hasPermission("MANAGE_CHANNELS")
+    }
 }
