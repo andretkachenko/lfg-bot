@@ -1,4 +1,5 @@
 export interface LfgChannel {
     guildId: string
-    channelId: string
+    channelId: string,
+    moderate: boolean
 }
