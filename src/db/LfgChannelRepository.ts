@@ -47,7 +47,7 @@ export class LfgChannelRepository {
         .then((insertResult) => {
             if (insertResult.result.ok !== 1) console.log("command not executed correctly: document not inserted")
             else {
-                console.log("document inserted")
+                console.log("document updated")
                 result = true
             }
             return result
