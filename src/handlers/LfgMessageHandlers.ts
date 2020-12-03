@@ -57,8 +57,7 @@ export class LfgMessageHandlers {
 	private async updateModerationOption(message: Message) {
 		if (!message.guild?.id) return
 		let moderateCmd = this.config.prefix + BotCommand.Moderate
-		let cmd = message.content.substring(moderateCmd.length + 1)
-		let args = cmd.split(' ')
+		let args = message.content.substring(moderateCmd.length + 1).replace(/\s+/g, ' ').trim().split(' ')
 		let lfgChannel: LfgChannel = { guildId: message.guild.id, channelId: args[0].substring(2, args[0].length-1), moderate: args[1] == '1' }
 		this.mongoConnector.lfgChannelRepository.setModeration(lfgChannel)
 	}
