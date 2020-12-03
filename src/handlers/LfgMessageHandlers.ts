@@ -51,7 +51,7 @@ export class LfgMessageHandlers {
 			this.startLfgEvent(message)
 			isLfgCmd = true
 		}
-		if(lfgChannel.moderate || isLfgCmd) message.delete()
+		if(isLfgCmd || (lfgChannel && lfgChannel.moderate)) message.delete()
 	}
 
 	private async updateModerationOption(message: Message) {
