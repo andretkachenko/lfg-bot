@@ -1,0 +1,1 @@
+export { TypeGuarder } from './TypeGuarder'

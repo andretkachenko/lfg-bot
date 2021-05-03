@@ -1,105 +1,130 @@
-import { Client, Message, PartialMessage, MessageReaction } from "discord.js"
-import { Logger } from "./handlers/Logger"
-import { LfgMessageHandlers } from "./handlers/LfgMessageHandlers"
-import { ClientEvent } from "./enums/ClientEvent"
-import { ProcessEvent } from "./enums/ProcessEvent"
-import { Config } from "./config"
-import { InfoHandlers } from "./handlers/InfoHandlers"
-import { MongoConnector } from "./db/MongoConnector"
-import { ServerHandlers } from "./handlers/ServerHandler"
+import { Client,
+	Message,
+	MessageReaction
+} from 'discord.js'
+import { Logger } from './Logger'
+import { ClientEvent } from './enums/ClientEvent'
+import { ProcessEvent } from './enums/ProcessEvent'
+import { Config } from './Config'
+import { MongoConnector } from './db/MongoConnector'
+import {
+	Messages,
+	Constants
+} from './descriptor'
+import { UserCommandHandlers } from './handlers/UserCommandHandlers'
+import { LfgChannelModerator, ServerHandler } from './handlers'
 
 export class EventRegistry {
-    private client: Client
-    private config: Config
+	private client: Client
+	private config: Config
 
-    private logger: Logger
-    private lfgHandlers: LfgMessageHandlers
-    private infoHandlers: InfoHandlers
-    private serverHandlers: ServerHandlers
+	private logger: Logger
+	private userCommandHandlers: UserCommandHandlers
+	private lfgChannelModerator: LfgChannelModerator
+	private serverHandlers: ServerHandler
 
-    constructor(client: Client, config: Config) {
-        this.client = client
-        this.config = config
+	constructor(client: Client, config: Config) {
+		this.client = client
+		this.config = config
 
-        let mongoConnector = new MongoConnector(config)
+		this.logger = new Logger()
 
-        this.logger = new Logger()
-        this.lfgHandlers = new LfgMessageHandlers(mongoConnector, config, client)
-        this.infoHandlers = new InfoHandlers(config)
-        this.serverHandlers = new ServerHandlers(mongoConnector)
-    }
+		const mongoConnector = new MongoConnector(config, this.logger)
+		this.userCommandHandlers = new UserCommandHandlers(client, this.logger, mongoConnector, config)
+		this.lfgChannelModerator = new LfgChannelModerator(this.logger, mongoConnector)
+		this.serverHandlers = new ServerHandler(this.logger, mongoConnector)
+	}
 
-    public registerEvents() {
-        // => Log bot started and listening
-        this.registerReadyHandler()
+	public registerEvents(): void {
+		// => Log bot started and listening
+		this.handleReady()
 
-        // => Main worker handlers
-        this.registerMessageHandler()
-        this.registerReactionHandler()
-        this.registerKickHandler()
+		// => Main worker handlers
+		this.handleMessage()
+		this.handleMessageReactionAdd()
+		this.handleGuildDelete()
 
-        // => Bot error and warn handlers
-        this.client.on(ClientEvent.Error, this.logger.logError)
-        this.client.on(ClientEvent.Warn, this.logger.logWarn)
+		// => Bot error and warn handlers
+		this.handleClientErrorsAndWarnings()
 
-        // => Process handlers
-        this.registerProcessHandlers()
-    }
+		// => Process handlers
+		this.handleProcessEvents()
+	}
 
-    // ---------------- //
-    //  Event Handlers  //
-    // ---------------- //
+	// ---------------- //
+	//  Event Handlers  //
+	// ---------------- //
 
-    private registerReadyHandler() {
-        !
-            this.client.once(ClientEvent.Ready, () => {
-                this.logger.introduce(this.client, this.config);
-            });
-    }
+	private handleReady() {
+		this.client.once(ClientEvent.ready, () => {
+			this.introduce(this.client, this.config)
+		})
+	}
 
-    private registerMessageHandler() {
-        this.client.on(ClientEvent.Message, (message: Message) => {
-            if(!message.author.bot) {
-                this.configCommandHandlers(message)
-                this.lfgHandlers.handleLfgCalls(message)
-            }
-        })
-    }
+	private handleMessage() {
+		this.client.on(ClientEvent.message, (message: Message) => {
+			this.userCommandHandlers.handle(message)
+		})
+	}
 
-    private registerReactionHandler() {
-        this.client.on(ClientEvent.MessageReactionAdd, (reaction: MessageReaction) => {
-            this.lfgHandlers.validateReaction(reaction)
-        })
-    }
+	private handleMessageReactionAdd() {
+		this.client.on(ClientEvent.messageReactionAdd, (reaction: MessageReaction) => {
+			this.lfgChannelModerator.validateReaction(reaction)
+				.catch(reason => this.logger.logError(this.constructor.name, this.handleMessageReactionAdd.name, reason))
+		})
+	}
 
-    private registerKickHandler() {
-        this.client.on(ClientEvent.GuildDelete, guild => {
-            this.serverHandlers.handleBotKickedFromServer(guild)
-        })
-    }
+	private handleGuildDelete() {
+		this.client.on(ClientEvent.guildDelete, guild => {
+			this.serverHandlers.handleBotKickedFromServer(guild)
+		})
+	}
 
-    private registerProcessHandlers() {
-        process.on(ProcessEvent.Exit, () => {
-            const msg = `[lfg-bot] Process exit.`
-            this.logger.logEvent(msg)
-            console.log(msg)
-            this.client.destroy()
-        })
+	private handleProcessEvents() {
+		process.on(ProcessEvent.exit, () => {
+			const msg = Messages.processExit
+			this.logger.logEvent(msg)
+			this.client.destroy()
+		})
 
-        process.on(ProcessEvent.UncaughtException, (err: Error) => {
-            const errorMsg = (err ? err.stack || err : '').toString().replace(new RegExp(`${__dirname}\/`, 'g'), './')
-            this.logger.logError(errorMsg)
-            console.log(errorMsg)
-        })
+		process.on(ProcessEvent.uncaughtException, (error: Error) => this.handleError(error))
 
-        process.on(ProcessEvent.UnhandledRejection, (reason: {} | null | undefined) => {
-            const msg = `Uncaught Promise rejection: ${reason}`
-            this.logger.logError(msg)
-            console.log(msg)
-        })
-    }
+		process.on(ProcessEvent.unhandledRejection, (reason: Error) => {
+			this.logger.logError(this.constructor.name, this.handleProcessEvents.name, `${Messages.unhandledRejection} : ${reason.message} ${reason.stack ? Constants.at + reason.stack : Constants.emptyString}`)
+		})
+	}
 
-    private configCommandHandlers(message: Message) {
-        this.infoHandlers.handleHelpCall(message)
-    }
+	private handleClientErrorsAndWarnings() {
+		this.client.on(ClientEvent.error, (error: Error) => this.handleError(error))
+
+		this.client.on(ClientEvent.warn, (warning) => {
+			this.logger.logWarn(Messages.discordWarn + ': ' + warning)
+		})
+	}
+
+	private handleError(err: Error) {
+		const errorMsg = (err ? err.stack || err : Constants.emptyString).toString().replace(new RegExp(`${__dirname}\/`, 'g'), './')
+		this.logger.logError(this.constructor.name, this.handleError.name, errorMsg)
+	}
+
+	public introduce(client: Client, config: Config): void {
+		this.logger.logEvent(Messages.botConnected)
+		this.logger.logEvent(Messages.loggedAs + (client.user ? client.user.tag : Constants.undefinedId))
+		try
+		{
+			this.setBotActivity(client, config)
+		}
+		catch(error) {
+			this.logger.logError(this.constructor.name, this.introduce.name, error)
+		}
+	}
+
+	private setBotActivity(client: Client, config: Config) {
+		if (client.user)
+			client.user.setActivity({
+				'name': Messages.statusString(config.prefix, client.guilds.cache.size),
+				'type': Constants.listening
+			})
+				.catch(reason => this.logger.logError(this.constructor.name, this.introduce.name, reason))
+	}
 }

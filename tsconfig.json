@@ -2,13 +2,12 @@
 	"compilerOptions": {
 		"target": "es2017",
 		"module": "commonjs",
-		"outDir": "./build",
-		"rootDir": "./src",
+		"outDir": "build",
+		"rootDir": "src",
 		"moduleResolution": "node",
 		"declaration": false,
 		"strict": true,
 		"sourceMap": true,
-		"esModuleInterop": true,
 		"noImplicitAny": true,
 		"alwaysStrict": true,
 		"typeRoots": [
@@ -16,7 +15,7 @@
         ]
 	},
 	"exclude": [
-		"./node_modules/*"
+		"./node_modules/*",
 	],
 	"include": [
 		"./src/**/*.ts"
