@@ -12,7 +12,7 @@ List of available commands:
 - `lfg help` - get info about bot and list of existing commands
 - `lfg setup` - make this channel an lfg channel. Requires user to have 'Manage Channels' permission.
 - `lfg ignore [message]` - add a message to the lfg channel that will not be deleted. Example: `lfg ignore This message is introductory thus should not be deleted` Requires user to have 'Manage Channels' permission.
-- `lfg moderate #{channel} [0/1]` - enable/disable deletion of messages and reactions. Example: `lfg moderate #lfg 0` to disable moderation, `lfg moderate #lfg 1` to enable. Requires user to have 'Manage Channels' permission.
+- `lfg moderate [0/1] #{channel}` - enable/disable deletion of messages and reactions. Example: `lfg moderate 0 #lfg` to disable moderation, `lfg moderate 1 #lfg` to enable. Supports multiple channel mentioning. Requires user to have 'Manage Channels' permission.
 - `lfg start` - add lfg message to the lfg channel. New temp channel will be created, where the user will be prompted to complete the survey. User's answers will be collected into an embed and sent to the lfg channel. Works only in lfg channels.
 
 ## Want to use at your server?

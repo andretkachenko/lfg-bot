@@ -1,4 +1,5 @@
-import { Message } from "discord.js"
+import { Message } from 'discord.js'
+import { BotCommand } from '../enums'
 
 type Validation = (response: Message | undefined) => boolean
 
@@ -16,7 +17,7 @@ export class SetupStep {
 	}
 
 	public skipped(response: Message | undefined): boolean {
-		return response && response.content.toLowerCase() === 'skip' ? true : false
+		return response && response.content.toLowerCase() === BotCommand.skip ? true : false
 	}
 
 	public validate(response: Message | undefined): boolean {
