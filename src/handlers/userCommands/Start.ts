@@ -7,7 +7,7 @@ import { Client,
 	TextChannel,
 	User
 } from 'discord.js'
-import { Config } from '../../config'
+import { Config } from '../../Config'
 import { MongoConnector } from '../../db/MongoConnector'
 import { Constants,
 	EventMessages,
