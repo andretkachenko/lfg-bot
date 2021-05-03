@@ -1,7 +1,7 @@
 import { Message,
 	MessageEmbed
 } from 'discord.js'
-import { Config } from '../../config'
+import { Config } from '../../Config'
 import { MongoConnector } from '../../db'
 import { Messages } from '../../descriptor'
 import { BotCommand } from '../../enums'

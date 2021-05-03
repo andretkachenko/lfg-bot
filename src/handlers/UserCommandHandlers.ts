@@ -13,7 +13,7 @@ import {
 	Setup,
 	Start,
 } from './userCommands'
-import { Config } from '../config'
+import { Config } from '../Config'
 import { Logger } from '../Logger'
 
 export class UserCommandHandlers {

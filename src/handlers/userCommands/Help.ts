@@ -4,7 +4,7 @@ import { DMChannel, Message,
 	TextChannel
 } from 'discord.js'
 import { IHandler } from '.'
-import { Config } from '../../config'
+import { Config } from '../../Config'
 import { MongoConnector } from '../../db'
 import { Constants } from '../../descriptor'
 import { BotCommand,

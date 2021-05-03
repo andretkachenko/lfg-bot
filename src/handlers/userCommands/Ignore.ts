@@ -7,7 +7,7 @@ import {
 } from '../../enums'
 import { BaseHandler } from './BaseHandler'
 import { Logger } from '../../Logger'
-import { Config } from '../../config'
+import { Config } from '../../Config'
 import { MongoConnector } from '../../db'
 
 export class Ignore extends BaseHandler {

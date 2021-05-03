@@ -2,7 +2,7 @@ import { Message,
 	MessageEmbed
 } from 'discord.js'
 import { BaseHandler } from './BaseHandler'
-import { Config } from '../../config'
+import { Config } from '../../Config'
 import { MongoConnector } from '../../db'
 import { Constants } from '../../descriptor'
 import { LfgChannel } from '../../entities'
