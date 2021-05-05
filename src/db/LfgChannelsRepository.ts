@@ -3,7 +3,7 @@ import { LfgChannel } from '../entities/LfgChannel'
 import { Logger } from '../Logger'
 import { Repository } from './Repository'
 
-export class LfgChannelRepository extends Repository<LfgChannel> {
+export class LfgChannelsRepository extends Repository<LfgChannel> {
 	constructor(logger: Logger, client: MongoClient, dbName: string) {
 		super(logger, client, dbName)
 	}
