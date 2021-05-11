@@ -12,7 +12,7 @@ export class Constants {
 	public static readonly lfgChannelName = 'lfg-setup'
 	public static readonly questionAttemptCount = 2
 	public static readonly maxAnswersExpected = 1
-	public static readonly timeToRespond = 10000
+	public static readonly timeToRespond = 300000
 	public static readonly time = 'time'
 	public static readonly acceptEmote = '👍'
 	public static readonly declineEmote = '👎'
