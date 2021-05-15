@@ -69,8 +69,8 @@ export class Survey {
 
 		// adapt from array to more convenient type
 		options.name = name
-		if (answers[1]) options.when = answers[1]
-		if (answers[2]) options.description = answers[2]
+		if (answers[0]) options.when = answers[0]
+		if (answers[1]) options.description = answers[1]
 
 		// survey is ended, temp channel no longer needed
 		this.deleteTempChannel(channel)
