@@ -70,6 +70,7 @@ export class Start extends BaseHandler {
 		if (options.description) msg += EventMessages.description(options.description)
 		msg += EventMessages.what(options.name)
 		if (options.when) msg += EventMessages.when(options.when)
+		if (options.count) msg += EventMessages.count(options.count)
 
 		return msg
 	}
