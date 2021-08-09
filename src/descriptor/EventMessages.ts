@@ -5,4 +5,5 @@ export class EventMessages {
 	public static description(descr: Message): string { return `\n**Description:** ${descr.content}` }
 	public static what(what: Message): string { return `\n**What:** ${what.content}` }
 	public static when(when: Message): string { return `\n**When:** ${when.content}` }
+	public static count(count: Message): string { return `\n**Group size:** ${count.content}` }
 }

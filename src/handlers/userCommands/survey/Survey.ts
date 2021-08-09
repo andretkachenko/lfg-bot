@@ -28,7 +28,8 @@ export class Survey {
 	private eventQuestions: SetupStep[] = [
 		new SetupStep(Messages.eventNameQuestion, Messages.eventWarning, (response) => { return response?.content !== BotCommand.skip }, true),
 		new SetupStep(Messages.whenQuestion, Messages.invalidResponse, (response) => { return response !== undefined }, false),
-		new SetupStep(Messages.descibeQuestion, Messages.invalidResponse, (response) => { return response !== undefined }, false)
+		new SetupStep(Messages.descibeQuestion, Messages.invalidResponse, (response) => { return response !== undefined }, false),
+		new SetupStep(Messages.countQuestion, Messages.invalidResponse, (response) => { return response !== undefined}, false),
 	]
 
 	public async tryConduct(message: Message, botId: string): Promise<EventOptions | undefined> {
@@ -65,12 +66,13 @@ export class Survey {
 		// - no answers recieved after 3 rounds of questions
 		// - took to long for user to respond
 		// - process was aborted by user
-		const answers = await this.tryGetAnswers(channel, [1, 2], message.author.id)
+		const answers = await this.tryGetAnswers(channel, message.author.id)
 
 		// adapt from array to more convenient type
 		options.name = name
 		if (answers[0]) options.when = answers[0]
 		if (answers[1]) options.description = answers[1]
+		if (answers[2]) options.count = answers[2]
 
 		// survey is ended, temp channel no longer needed
 		this.deleteTempChannel(channel)
@@ -89,30 +91,30 @@ export class Survey {
 		throw err
 	}
 
-	private async tryGetAnswers(channel: TextChannel, questionIds: number[], authorId: string, index = 0): Promise<(Message | undefined)[]> {
-		const answers = await this.tryGetAnswersOnce(channel, questionIds, authorId)
+	private async tryGetAnswers(channel: TextChannel, authorId: string, index = 0): Promise<(Message | undefined)[]> {
+		const answers = await this.tryGetAnswersOnce(channel, authorId)
 		index++
 		// if at least 1 of the optional questions was answered - good to go further
-		if(this.anyOptionFilled(channel, answers)) return answers
+		if(this.whenOrDescrFilled(channel, answers)) return answers
 		// if took too much attempts - abort the process
 		if(index > Constants.questionAttemptCount) {
 			this.deleteTempChannel(channel)
 			throw new SurveyError(Messages.setupFailed)
 		}
 		// give user another chance
-		return this.tryGetAnswers(channel, questionIds, authorId, index)
+		return this.tryGetAnswers(channel, authorId, index)
 	}
 
-	private async tryGetAnswersOnce(channel: TextChannel, questionIds: number[], authorId: string): Promise<(Message | undefined)[]> {
+	private async tryGetAnswersOnce(channel: TextChannel, authorId: string): Promise<(Message | undefined)[]> {
 		const answers: (Message | undefined)[] = []
-		for(const questionId of questionIds) {
-			answers.push(await this.tryGetAnswer(channel, questionId, authorId))
+		for(const question of this.eventQuestions.filter(x => !x.required)) {
+			answers.push(await this.tryGetAnswer(channel, question, authorId))
 		}
 		return answers
 	}
 
-	private async tryGetAnswer(channel: TextChannel, questionId: number, authorId: string): Promise<Message | undefined> {
-		const answer = await this.getDetail(channel, this.eventQuestions[questionId], m => m.author.id === authorId)
+	private async tryGetAnswer(channel: TextChannel, question: SetupStep, authorId: string): Promise<Message | undefined> {
+		const answer = await this.getDetail(channel, question, m => m.author.id === authorId)
 		this.checkForAbort(channel, answer)
 
 		// if no error was thrown before - answer is considered valid and good to go further
@@ -150,8 +152,8 @@ export class Survey {
 		this.sendMessage(channel, step.warning)
 	}
 
-	private anyOptionFilled(channel: TextChannel, answers: (Message | undefined)[]): boolean {
-		if (!answers.some(answer => answer)) {
+	private whenOrDescrFilled(channel: TextChannel, answers: (Message | undefined)[]): boolean {
+		if (!answers[0] && !answers[1]) {
 			this.sendMessage(channel, Messages.fillWhenOrDescription)
 			return false
 		}
