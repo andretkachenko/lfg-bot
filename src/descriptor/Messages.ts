@@ -13,6 +13,7 @@ export class Messages {
 	public static readonly eventWarning = 'Event name should be filled.'
 	public static readonly whenQuestion = 'When? (SEND "skip" if you don\'t want to fill the field)'
 	public static readonly descibeQuestion = 'How would you describe this event? (send "skip" if you don\'t want to fill the field)'
+	public static readonly countQuestion = 'How many people can participate? (send "skip" if you don\'t want to fill the field)'
 	public static readonly fillWhenOrDescription = "Either 'when' or 'description' should be filled."
 
 	public static readonly invalidResponse = 'Error processing your response'
