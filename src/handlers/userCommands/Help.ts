@@ -62,7 +62,7 @@ export class Help extends BaseHandler {
 	public fillEmbed(embed: MessageEmbed): void {
 		embed
 			.addField('List of available commands',`			
-			\`#{channel}\` - 'mention text channel', \`[0/1]\` - choose one option, <message> - placeholder for your message
+			\`#{channel}\` - 'mention text channel', \`[0/1]\` - choose one option, \`<message>\` - placeholder for your message
 			\`${this.prefix+BotCommand.setup}\` - make this channel an lfg channel. Bot will only create event in lfg channels.
 			\`${this.prefix+BotCommand.ignore} <message>\` - add message to the lfg channel. Other messages (ignoring commands) will be deleted immediately from lfg channel.
 			\`${this.prefix+BotCommand.moderate} [0/1] #{channel}\` - enable/disable deletion of messages and reactions.

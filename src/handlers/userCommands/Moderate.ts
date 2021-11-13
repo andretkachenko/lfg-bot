@@ -34,7 +34,7 @@ export class Moderate extends BaseHandler {
 
 	public fillEmbed(embed: MessageEmbed): void {
 		embed
-			.addField(`${this.cmd} [0/1] {channelId}`, `
+			.addField(`${this.cmd} [0/1] #channel`, `
 			Enable/disable moderation of the lfg channels. If moderation is enabled on LFG channel, the bot will delete every message exept event and will delete emotions exept predefined ones.
             \`1\` means that moderation should be enabled for the channel, \`0\` - disabled.
 			\`1\` is the default option for the LFG channels.
