@@ -29,8 +29,8 @@ export class Help extends BaseHandler {
 		{
 			docType = this.findDocHandler(message, docType)
 		}
-		catch (e: any) {
-			this.logger.logError(this.constructor.name, this.process.name, e, docType)
+		catch (e) {
+			this.logger.logError(this.constructor.name, this.process.name, e as string, docType)
 			this.trySendHelp(message.channel, this)
 		}
 	}
