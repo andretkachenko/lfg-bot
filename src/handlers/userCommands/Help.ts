@@ -29,13 +29,13 @@ export class Help extends BaseHandler {
 		{
 			docType = this.findDocHandler(message, docType)
 		}
-		catch (e) {
+		catch (e: any) {
 			this.logger.logError(this.constructor.name, this.process.name, e, docType)
 			this.trySendHelp(message.channel, this)
 		}
 	}
 
-	private findDocHandler(message: Message, docType: string) {
+	private findDocHandler(message: Message, docType: string): string {
 		const args = this.splitArguments(this.trimCommand(message))
 		if (args[0])
 			docType = args[0]

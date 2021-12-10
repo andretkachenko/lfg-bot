@@ -16,7 +16,7 @@ import { BotCommand,
 	Permission
 } from '../../../enums'
 import { Logger } from '../../../Logger'
-import { SurveyError } from './SurveyError'
+import { AbortProcess, SurveyError } from '.'
 
 export class Survey {
 	private logger: Logger
@@ -86,6 +86,10 @@ export class Survey {
 			author.createDM()
 				.then(dmChannel => this.explainError(dmChannel, err.message))
 				.catch(reason => this.logger.logError(this.constructor.name, this.handleConductError.name, reason))
+			return
+		}
+		if(err instanceof AbortProcess) {
+			this.deleteTempChannel(channel)
 			return
 		}
 		throw err
@@ -182,7 +186,7 @@ export class Survey {
 	private checkForAbort(channel: TextChannel, message: Message | undefined): void {
 		if(message?.content === BotCommand.abort) {
 			this.deleteTempChannel(channel)
-			throw new SurveyError(Messages.eventAborted)
+			throw new AbortProcess()
 		}
 	}
 
