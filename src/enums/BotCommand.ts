@@ -1,7 +1,7 @@
 export enum BotCommand {
 	help = 'help',
 	ping = 'ping',
-	start = 'start',
+	create = 'create',
 	setup = 'setup',
 	ignore = 'ignore',
 	moderate = 'moderate',

@@ -16,12 +16,12 @@ export class Messages {
 	public static readonly countQuestion = 'How many people can participate? (send "skip" if you don\'t want to fill the field)'
 	public static readonly fillWhenOrDescription = "Either 'when' or 'description' should be filled."
 
+	public static readonly errorProcessingChannelId = 'Error processing channel '
 	public static readonly invalidResponse = 'Error processing your response'
 	public static readonly noResponse = 'Took to long to respond.'
 	public static readonly setupFailed = 'Event was not set up'
 	public static readonly channelSetupSuccess = 'this channel is now set up as lfg channel'
 	public static readonly eventAborted = 'User aborted event setup process. Exiting...'
 	public static explain(err: string): string { return `It seems you faced some issues when tried to create event:\n ${err}` }
-
-	public static statusString(prefix: string, amt: number): string { return `${prefix}help on ${amt} servers`}
+	public static statusString(amt: number): string { return `${amt} servers`}
 }
