@@ -1,38 +1,40 @@
 import { Client,
+	Interaction,
+	ActivityType,
 	Message,
-	MessageReaction
+	MessageReaction,
+	PartialMessageReaction,
 } from 'discord.js'
 import { Logger } from './Logger'
 import { ClientEvent } from './enums/ClientEvent'
 import { ProcessEvent } from './enums/ProcessEvent'
-import { Config } from './Config'
 import { MongoConnector } from './db/MongoConnector'
 import {
 	Messages,
 	Constants
 } from './descriptor'
-import { UserCommandHandlers } from './handlers/UserCommandHandlers'
 import { LfgChannelModerator, ServerHandler } from './handlers'
+import { IHandler } from './handlers/userCommands'
 
 export class EventRegistry {
 	private client: Client
-	private config: Config
 
 	private logger: Logger
-	private userCommandHandlers: UserCommandHandlers
 	private lfgChannelModerator: LfgChannelModerator
 	private serverHandlers: ServerHandler
+	private handlers: Map<string, IHandler>
 
-	constructor(client: Client, config: Config) {
+	constructor(client: Client, mongoConnector: MongoConnector) {
 		this.client = client
-		this.config = config
-
 		this.logger = new Logger()
 
-		const mongoConnector = new MongoConnector(config, this.logger)
-		this.userCommandHandlers = new UserCommandHandlers(client, this.logger, mongoConnector, config)
-		this.lfgChannelModerator = new LfgChannelModerator(this.logger, mongoConnector)
 		this.serverHandlers = new ServerHandler(this.logger, mongoConnector)
+		this.lfgChannelModerator = new LfgChannelModerator(this.logger, mongoConnector)
+		this.handlers = new Map()
+	}
+
+	public setCommands(handlers: Map<string, IHandler>): void {
+		this.handlers = handlers
 	}
 
 	public registerEvents(): void {
@@ -40,6 +42,7 @@ export class EventRegistry {
 		this.handleReady()
 
 		// => Main worker handlers
+		this.handleInteraction()
 		this.handleMessage()
 		this.handleMessageReactionAdd()
 		this.handleGuildDelete()
@@ -57,20 +60,35 @@ export class EventRegistry {
 
 	private handleReady() {
 		this.client.once(ClientEvent.ready, () => {
-			this.introduce(this.client, this.config)
+			this.introduce(this.client)
 		})
 	}
 
 	private handleMessage() {
-		this.client.on(ClientEvent.message, (message: Message) => {
-			this.userCommandHandlers.handle(message)
+		this.client.on(ClientEvent.messageCreate, (message: Message) => {
+			this.lfgChannelModerator.validateMessage(message)
+				.catch(reason => this.logger.logError(this.constructor.name, this.handleMessage.name, reason as string))
 		})
 	}
 
 	private handleMessageReactionAdd() {
-		this.client.on(ClientEvent.messageReactionAdd, (reaction: MessageReaction) => {
+		this.client.on(ClientEvent.messageReactionAdd, (reaction: MessageReaction | PartialMessageReaction) => {
 			this.lfgChannelModerator.validateReaction(reaction)
-				.catch(reason => this.logger.logError(this.constructor.name, this.handleMessageReactionAdd.name, reason))
+				.catch(reason => this.logger.logError(this.constructor.name, this.handleMessageReactionAdd.name, reason as string))
+		})
+	}
+
+	private handleInteraction() {
+		this.client.on(ClientEvent.interactionCreate, (interaction: Interaction) => {
+			if(interaction.isModalSubmit()) {
+				this.serverHandlers.print(interaction)
+				return
+			}
+
+			if(!interaction.isChatInputCommand() || this.client.application?.commands.resolve(interaction.commandName)) return
+
+			const handler = this.handlers.get(interaction.commandName)
+			handler?.process(interaction)
 		})
 	}
 
@@ -107,24 +125,23 @@ export class EventRegistry {
 		this.logger.logError(this.constructor.name, this.handleError.name, errorMsg)
 	}
 
-	public introduce(client: Client, config: Config): void {
+	private introduce(client: Client): void {
 		this.logger.logEvent(Messages.botConnected)
 		this.logger.logEvent(Messages.loggedAs + (client.user ? client.user.tag : Constants.undefinedId))
 		try
 		{
-			this.setBotActivity(client, config)
+			this.setBotActivity(client)
 		}
 		catch(error) {
-			this.logger.logError(this.constructor.name, this.introduce.name, error)
+			this.logger.logError(this.constructor.name, this.introduce.name, error as string)
 		}
 	}
 
-	private setBotActivity(client: Client, config: Config) {
+	private setBotActivity(client: Client) {
 		if (client.user)
 			client.user.setActivity({
-				'name': Messages.statusString(config.prefix, client.guilds.cache.size),
-				'type': Constants.listening
+				name: Messages.statusString(client.guilds.cache.size),
+				type: ActivityType.Watching
 			})
-				.catch(reason => this.logger.logError(this.constructor.name, this.introduce.name, reason))
 	}
 }

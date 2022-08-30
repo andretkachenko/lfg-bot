@@ -1,74 +1,63 @@
-import { Message,
-	MessageEmbed
+import { SlashCommandBuilder } from '@discordjs/builders'
+import { ChatInputCommandInteraction,
+	Client,
+	EmbedBuilder,
+	PermissionFlagsBits
 } from 'discord.js'
 import { Config } from '../../Config'
 import { MongoConnector } from '../../db'
-import { Permission } from '../../enums'
 import { Logger } from '../../Logger'
 import { IHandler } from './.'
+import { Constants } from '../../descriptor'
 
 export abstract class BaseHandler implements IHandler {
-	private nextHandler!: IHandler
-	protected mongoConnector: MongoConnector
+	public slash: SlashCommandBuilder
+	protected client: Client
 	protected logger: Logger
-	public readonly cmdWord: string
-	protected readonly prefix: string
+	protected mongoConnector: MongoConnector
+	public readonly cmd: string
 	protected readonly img: string
-	protected readonly cmd: string
 
-	constructor(logger: Logger, mongoConnector: MongoConnector, config: Config, cmd: string) {
+	constructor(client: Client, logger: Logger, config: Config, mongoConnector: MongoConnector, cmd : string) {
+		this.client = client
 		this.logger = logger
 		this.mongoConnector = mongoConnector
-		this.cmdWord = cmd
-		this.prefix = config.prefix
+		this.cmd = cmd
 		this.img = config.img
-		this.cmd = this.prefix + this.cmdWord
+
+		this.slash = new SlashCommandBuilder()
+			.setName(cmd)
+			.setDescription(cmd)
 	}
 
-	protected abstract process(message: Message): void
-	public abstract fillEmbed(embed: MessageEmbed): void
-
-	public setNext(handler: IHandler): IHandler {
-		this.nextHandler = handler
-		return handler
+	public process(interaction: ChatInputCommandInteraction): void {
+		if(!this.hasPermissions(interaction) || interaction.replied) return
+		interaction.reply({ content: 'done', ephemeral: true})
+			.catch(reason => this.logger.logError(this.constructor.name, this.process.name, reason as string))
 	}
 
-	public handle(message: Message): void {
-		const content = message.content.toLocaleLowerCase()
-		if (content.startsWith(this.cmd.toLocaleLowerCase()) && this.hasPermissions(message)) {
-			this.process(message)
-			this.deleteIfModerated(message)
-				.catch(reason => this.logger.logError(this.constructor.name, this.handle.name, reason))
-			return
-		}
-		if (this.nextHandler) return this.nextHandler.handle(message)
+	public abstract fillEmbed(embed: EmbedBuilder): void
 
-		this.deleteIfModerated(message)
-			.catch(reason => this.logger.logError(this.constructor.name, this.handle.name, reason))
+	protected hasPermissions(interaction: ChatInputCommandInteraction): boolean {
+		return interaction.memberPermissions !== null && interaction.memberPermissions.has([PermissionFlagsBits.ManageRoles, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ViewChannel], true)
 	}
 
-	protected async deleteIfModerated(message: Message): Promise<void> {
-		if (!message.guild?.id) return
-
-		const lfgChannel = await this.mongoConnector.lfgChannelRepository.get(message.guild.id, message.channel.id)
-		if(lfgChannel?.moderate) this.deleteCommandMessage(message)
+	protected createEmbed(): EmbedBuilder {
+		return new EmbedBuilder()
+			.setColor(Constants.embedInfoColor)
+			.setAuthor({
+				name: Constants.embedTitle,
+				iconURL: this.img,
+				url :Constants.repoUrl
+			})
 	}
 
-	protected deleteCommandMessage(message: Message): void {
-		message.delete()
-			.catch(reason => this.logger.logError(this.constructor.name, this.handle.name, reason))
-	}
-
-	protected hasPermissions(message: Message): boolean {
-		return message.member !== null && message.member.hasPermission([Permission.manageChannels, Permission.sendMessages, Permission.viewChannel], { checkAdmin: true, checkOwner: true})
-	}
-
-	protected splitArguments(message: string): string[] {
-		return message.replace(/\s+/g, ' ').trim().split(' ')
-	}
-
-	protected trimCommand(message: Message): string {
-		return message.content.substring(this.cmd.length + 1)
+	protected addFooter(embed: EmbedBuilder): void {
+		embed
+			.addFields({
+				name: 'Any issues or missing feature?',
+				value: 'You can raise a ticket at ' + Constants.repoUrl+Constants.issuesUri
+			})
 	}
 
 	protected trimMentionMarkers(id: string): string {

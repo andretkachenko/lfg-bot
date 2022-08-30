@@ -1,5 +1,7 @@
-import { Message,
-	MessageEmbed
+import { Client,
+	CommandInteraction,
+	EmbedBuilder,
+	PermissionFlagsBits
 } from 'discord.js'
 import { Config } from '../../Config'
 import { MongoConnector } from '../../db'
@@ -7,26 +9,32 @@ import { Messages } from '../../descriptor'
 import { BotCommand } from '../../enums'
 import { Logger } from '../../Logger'
 import { BaseHandler } from './BaseHandler'
+import { IHandler } from './IHandler'
 
+@IHandler.register
 export class Ping extends BaseHandler {
-	constructor(logger: Logger, mongoConnector: MongoConnector, config: Config) {
-		super(logger, mongoConnector, config, BotCommand.ping)
+	constructor(client: Client, logger: Logger, config: Config, mongoConnector: MongoConnector) {
+		super(client, logger, config, mongoConnector, BotCommand.ping)
+
+		this.slash
+			.setDescription('Check if the bot is alive')
+			.setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
 	}
 
-	protected process(message: Message): void {
-		message.channel.send(Messages.pingResponse)
-			.catch(reason => this.logger.logError(this.constructor.name, this.process.name, reason))
+	public process(interaction: CommandInteraction): void {
+		interaction.reply({ content: Messages.pingResponse, ephemeral: true })
+			.catch(reason => this.logger.logError(this.constructor.name, this.process.name, reason as string))
 	}
 
-	protected hasPermissions(_message: Message): boolean {
+	protected hasPermissions(_interaction: CommandInteraction): boolean {
 		return true
 	}
 
-	public fillEmbed(embed: MessageEmbed): void {
+	public fillEmbed(embed: EmbedBuilder): void {
 		embed
-			.addField(`${this.prefix}ping`, `
-            This command is create to check if the bot is alive.
-            Writes \`'${Messages.pingResponse}'\` in the chat if the bot is working.
-		`)
+			.addFields({
+				name: `${this.cmd}`,
+				value: `This command is created to check if the bot is alive. Writes \`'${Messages.pingResponse}'\` in the chat if the bot is working.`
+			})
 	}
 }
