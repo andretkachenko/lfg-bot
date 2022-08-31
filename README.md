@@ -8,12 +8,12 @@ To accept or decline event, a user can click on 👍 or 👎 emoji respectively.
 All other reactions will be deleted to prevent reaction spam and trolling (configurable, see commands).  
 
 ## Existing commands
+**NB:** due to changes in the Discord's policies, all commands were changed to slash commands.
 List of available commands:
-- `lfg help` - get info about bot and list of existing commands
-- `lfg setup` - make this channel an lfg channel. Requires user to have 'Manage Channels' permission.
-- `lfg ignore [message]` - add a message to the lfg channel that will not be deleted. Example: `lfg ignore This message is introductory thus should not be deleted` Requires user to have 'Manage Channels' permission.
-- `lfg moderate [0/1] #{channel}` - enable/disable deletion of messages and reactions. Example: `lfg moderate 0 #lfg` to disable moderation, `lfg moderate 1 #lfg` to enable. Supports multiple channel mentioning. Requires user to have 'Manage Channels' permission.
-- `lfg start` - add lfg message to the lfg channel. New temp channel will be created, where the user will be prompted to complete the survey. User's answers will be collected into an embed and sent to the lfg channel. Works only in lfg channels.
+- `/help` - get info about bot and list of existing commands
+- `/setup` - make this channel an lfg channel. Requires user to have 'Manage Channels' permission.
+- `/moderate [0/1] #{channel}` - enable/disable deletion of messages and reactions. Example: `lfg moderate 0 #lfg` to disable moderation, `lfg moderate 1 #lfg` to enable. Supports multiple channel mentioning. Requires user to have 'Manage Channels' permission.
+- `/create` - add lfg message to the lfg channel. The command will create form, where the user will be prompted to complete the survey. User's answers will be collected into an embed and sent to the lfg channel. Works only in lfg channels.
 
 ## Want to use at your server?
 [![Invite bot to your server](https://i.imgur.com/n8T9oOi.jpg)](https://discord.com/api/oauth2/authorize?client_id=732697892292395110&permissions=268692560&scope=bot)
