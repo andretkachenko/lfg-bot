@@ -12,8 +12,9 @@ All other reactions will be deleted to prevent reaction spam and trolling (confi
 List of available commands:
 - `/help` - get info about bot and list of existing commands
 - `/setup` - make this channel an lfg channel. Requires user to have 'Manage Channels' permission.
-- `/moderate [0/1] #{channel}` - enable/disable deletion of messages and reactions. Example: `lfg moderate 0 #lfg` to disable moderation, `lfg moderate 1 #lfg` to enable. Supports multiple channel mentioning. Requires user to have 'Manage Channels' permission.
+- `/moderate [True/False] #{channel}` - Enable/disable moderation of the lfg channels. If moderation is enabled on LFG channel, the bot will delete every message exept event and will delete emotions exept predefined ones. Requires user to have admin/owner rights or permissions to manage channels.
 - `/create` - add lfg message to the lfg channel. The command will create form, where the user will be prompted to complete the survey. User's answers will be collected into an embed and sent to the lfg channel. Works only in lfg channels.
+- `/ping` - Writes alive and waiting for your commands in the chat if the bot is working.This command is created to check if the bot is alive.
 
 ## Want to use at your server?
 [![Invite bot to your server](https://i.imgur.com/n8T9oOi.jpg)](https://discord.com/api/oauth2/authorize?client_id=732697892292395110&permissions=268692560&scope=bot)
