@@ -5,7 +5,7 @@ export class Constants {
 
 	public static readonly embedTitle = 'LFG Bot - event manager'
 	public static readonly embedInfoColor = '#0099ff'
-	public static readonly repoUrl = 'https://github.com/AndreTkachenkoOrg/lfg-bot'
+	public static readonly repoUrl = 'https://github.com/andretkachenko/lfg-bot'
 	public static readonly issuesUri = '/issues'
 	public static readonly inviteGuideUri = '#want-to-use-at-your-server'
 

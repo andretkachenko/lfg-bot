@@ -27,7 +27,7 @@ export class ServerHandler {
 		})
 	}
 
-	public print(interaction: ModalSubmitInteraction) {
+	public async print(interaction: ModalSubmitInteraction): Promise<void> {
 		if(!interaction) return
 
 		const description = interaction.fields.getTextInputValue(ModalIds.descriptionId)
@@ -41,7 +41,7 @@ export class ServerHandler {
 			.then(message => this.addAllowedEmotes(message))
 			.catch(reason => this.logger.logError(this.constructor.name, this.print.name, reason as string))
 
-		interaction.reply({ content: 'Your submission was received successfully!', ephemeral: true })
+		await interaction.reply({ content: 'Your submission was received successfully!', ephemeral: true })
 			.catch(reason => this.logger.logError(this.constructor.name, this.print.name, reason as string))
 	}
 	private createEventMessage(author: User, what: string, description: string, when: string, size: string): string {

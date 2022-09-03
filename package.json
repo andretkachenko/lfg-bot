@@ -40,15 +40,15 @@
     "lint": "eslint -c .eslintrc.json --ext .ts src"
   },
   "engines": {
-    "node": "v16.15.0",
-    "npm": "8.5.5"
+    "node": "v16.15.1",
+    "npm": "8.11.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://https://github.com/AndreTkachenkoOrg/lfg-bot.git"
+    "url": "git+https://https://github.com/andretkachenko/lfg-bot.git"
   },
   "bugs": {
-    "url": "https://https://github.com/AndreTkachenkoOrg/lfg-bot/issues"
+    "url": "https://https://github.com/andretkachenko/lfg-bot/issues"
   },
-  "homepage": "https://https://github.com/AndreTkachenkoOrg/lfg-bot#readme"
+  "homepage": "https://https://github.com/andretkachenko/lfg-bot#readme"
 }

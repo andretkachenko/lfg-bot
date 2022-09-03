@@ -56,19 +56,22 @@ export class Create extends BaseHandler {
 			new TextInputBuilder()
 				.setCustomId(this.whatId)
 				.setLabel('What')
-				.setStyle(TextInputStyle.Short))
+				.setStyle(TextInputStyle.Short)
+				.setRequired(true))
 
 		const when = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
 			new TextInputBuilder()
 				.setCustomId(this.whenId)
 				.setLabel('When')
-				.setStyle(TextInputStyle.Short))
+				.setStyle(TextInputStyle.Short)
+				.setRequired(false))
 
 		const groupSize = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
 			new TextInputBuilder()
 				.setCustomId(this.partySizeId)
 				.setLabel('Group Size')
-				.setStyle(TextInputStyle.Short))
+				.setStyle(TextInputStyle.Short)
+				.setRequired(false))
 
 		const modal = new ModalBuilder()
 			.setCustomId('lfgSurvey')
