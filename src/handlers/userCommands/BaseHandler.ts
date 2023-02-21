@@ -32,7 +32,7 @@ export abstract class BaseHandler implements IHandler {
 
 	public process(interaction: ChatInputCommandInteraction): void {
 		if(!this.hasPermissions(interaction) || interaction.replied) return
-		interaction.reply({ content: 'done', ephemeral: true})
+		interaction.reply({ content: 'done', ephemeral: true })
 			.catch(reason => this.logger.logError(this.constructor.name, this.process.name, reason as string))
 	}
 

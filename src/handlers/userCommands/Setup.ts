@@ -43,10 +43,7 @@ export class Setup extends BaseHandler {
 			moderate: true
 		}
 		await this.mongoConnector.lfgChannelRepository.insert(lfgChannel)
-		interaction.reply({
-			content: Messages.channelSetupSuccess,
-			ephemeral: true
-		})
+		interaction.reply({ content: Messages.channelSetupSuccess, ephemeral: true })
 			.catch(reason => this.logger.logError(this.constructor.name, this.setupLfgChannel.name, reason as string))
 	}
 

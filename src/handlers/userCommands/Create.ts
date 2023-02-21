@@ -11,10 +11,12 @@ import {
 import {
 	Client,
 	ChatInputCommandInteraction,
-	EmbedBuilder
+	EmbedBuilder,
+	CommandInteraction
 } from 'discord.js'
 import { Config } from '../../Config'
 import { MongoConnector } from '../../db/MongoConnector'
+import { Messages } from '../../descriptor'
 import { BotCommand } from '../../enums'
 import { Logger } from '../../Logger'
 import { BaseHandler } from './BaseHandler'
@@ -41,9 +43,13 @@ export class Create extends BaseHandler {
 	}
 
 
-	private async startLfgEvent(interaction: ChatInputCommandInteraction) {
+	private async startLfgEvent(interaction: CommandInteraction): Promise<void> {
 		const lfgChannel = await this.mongoConnector.lfgChannelRepository.get(interaction.guildId ?? '', interaction.channelId ?? '')
-		if (!lfgChannel) return
+		if (!lfgChannel) {
+			interaction.reply({ content: Messages.invalidChannel, ephemeral: true })
+				.catch(reason => this.logger.logError(this.constructor.name, this.startLfgEvent.name, reason as string))
+			return
+		}
 
 		const description = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
 			new TextInputBuilder()

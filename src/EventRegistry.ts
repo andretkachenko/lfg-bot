@@ -87,12 +87,9 @@ export class EventRegistry {
 			}
 
 			if(!interaction.isChatInputCommand() || this.client.application?.commands.resolve(interaction.commandName)) return
-			interaction.deferReply()
-				.then(() => {
-					const handler = this.handlers.get(interaction.commandName)
-					handler?.process(interaction)
-				})
-				.catch(reason => this.logger.logError(this.constructor.name, this.handleInteraction.name, reason as string))
+
+			const handler = this.handlers.get(interaction.commandName)
+			handler?.process(interaction)
 		})
 	}
 

@@ -21,6 +21,7 @@ export class Messages {
 	public static readonly noResponse = 'Took to long to respond.'
 	public static readonly setupFailed = 'Event was not set up'
 	public static readonly channelSetupSuccess = 'this channel is now set up as lfg channel'
+	public static readonly invalidChannel = 'this is not a lfg channel'
 	public static readonly eventAborted = 'User aborted event setup process. Exiting...'
 	public static explain(err: string): string { return `It seems you faced some issues when tried to create event:\n ${err}` }
 	public static statusString(amt: number): string { return `${amt} servers`}
