@@ -12,7 +12,7 @@ export class MongoConnector {
 	public lfgChannelRepository: LfgChannelsRepository
 
 	constructor(config: Config, logger: Logger) {
-		const uri = `mongodb+srv://${config.mongoName}:${config.mongoPassword}@${config.mongoCluster}`
+		const uri = `${config.mongoProtocol}://${config.mongoName}:${config.mongoPassword}@${config.mongoCluster}`
 		this.client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true })
 
 		this.client.connect((err) => {

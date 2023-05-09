@@ -6,6 +6,7 @@ export class Config {
 	environment: string
 	testServer: string
 	prefix: string
+	mongoProtocol: string
 	mongoName: string
 	mongoPassword: string
 	mongoCluster: string
@@ -19,6 +20,7 @@ export class Config {
 		this.environment = process.env.NODE_ENV as string
 		this.testServer = process.env.TEST_SERVER as string
 		this.prefix = process.env.PREFIX as string
+		this.mongoProtocol = process.env.MONGO_PROTOCOL as string
 		this.mongoName = process.env.MONGO_NAME as string
 		this.mongoPassword = process.env.MONGO_PWD as string
 		this.mongoCluster = process.env.MONGO_CLUSTER as string
