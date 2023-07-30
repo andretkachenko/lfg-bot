@@ -42,7 +42,7 @@ export class LfgChannelModerator {
 		if(!message || !message.guild) return false
 
 		const me = await message.guild.members.fetchMe()
-		return me.permissions.has(PermissionFlagsBits.ManageMessages, true)
+		return me.permissions.has([PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.ManageMessages], true)
 	}
 
 	private allowedEmote({ reaction }: { reaction: MessageReaction | PartialMessageReaction }): boolean {
