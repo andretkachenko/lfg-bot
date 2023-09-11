@@ -1,6 +1,6 @@
 {
   "name": "lfg-bot",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "description": "discord bot to set up #looking-for-group channel",
   "main": "build/main.js",
   "author": "andretkachenko",
