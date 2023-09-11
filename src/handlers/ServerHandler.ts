@@ -1,42 +1,33 @@
-import {
-	Guild,
-	Message,
-	ModalSubmitInteraction,
-	User
-} from 'discord.js'
-import { MongoConnector } from '../db/MongoConnector'
-import { Constants,
-	EventMessages
-} from '../descriptor'
-import { ModalIds } from '../enums'
+import { Message, ModalSubmitInteraction } from 'discord.js'
 import { Logger } from '../Logger'
+import { ModalId } from '.'
 
 export class ServerHandler {
 	private logger: Logger
-	private mongoConnector: MongoConnector
+	private readonly accept = '👍'
+	private readonly decline = '👎'
 
-	constructor(logger: Logger, mongoConnector: MongoConnector) {
+	constructor(logger: Logger) {
 		this.logger = logger
-		this.mongoConnector = mongoConnector
-	}
-
-	public handleBotKickedFromServer(guild: Guild): void {
-		this.mongoConnector.repositories.forEach(repo => {
-			repo.deleteForGuild(guild.id)
-				.catch(reason => this.logger.logError(this.constructor.name, this.handleBotKickedFromServer.name, reason as string, repo.constructor.name))
-		})
 	}
 
 	public async print(interaction: ModalSubmitInteraction): Promise<void> {
 		if(!interaction) return
 
-		const description = interaction.fields.getTextInputValue(ModalIds.descriptionId)
-		const what = interaction.fields.getTextInputValue(ModalIds.whatId)
-		const when = interaction.fields.getTextInputValue(ModalIds.whenId)
-		const size = interaction.fields.getTextInputValue(ModalIds.partySizeId)
+		// gather user input
+		const description = interaction.fields.getTextInputValue(ModalId.description)
+		const what = interaction.fields.getTextInputValue(ModalId.what)
+		const when = interaction.fields.getTextInputValue(ModalId.when)
+		const size = interaction.fields.getTextInputValue(ModalId.partySize)
 
-		const msg = this.createEventMessage(interaction.user, what, description, when, size)
+		// combine into one form
+		let msg = `>>> **${interaction.user.username}** is looking for a group!`
+		if (description) msg += `\n**Description:** ${description}`
+		msg += `\n**What:** ${what}`
+		if (when) msg += `\n**When:** ${when}`
+		if (size) msg += `\n**Group size:** ${size}`
 
+		// send form and inform user about the result
 		interaction.channel?.send(msg)
 			.then(message => this.addAllowedEmotes(message))
 			.catch(reason => this.logger.logError(this.constructor.name, this.print.name, reason as string))
@@ -44,20 +35,11 @@ export class ServerHandler {
 		await interaction.reply({ content: 'Your submission was received successfully!', ephemeral: true })
 			.catch(reason => this.logger.logError(this.constructor.name, this.print.name, reason as string))
 	}
-	private createEventMessage(author: User, what: string, description: string, when: string, size: string): string {
-		let msg = EventMessages.header(author.username)
-		if (description) msg += EventMessages.description(description)
-		msg += EventMessages.what(what)
-		if (when) msg += EventMessages.when(when)
-		if (size) msg += EventMessages.count(size)
-
-		return msg
-	}
 
 	private addAllowedEmotes(msg: Message) {
-		msg.react(Constants.acceptEmote)
+		msg.react(this.accept)
 			.catch(reason => this.logger.logError(this.constructor.name, this.addAllowedEmotes.name, reason as string))
-		msg.react(Constants.declineEmote)
+		msg.react(this.decline)
 			.catch(reason => this.logger.logError(this.constructor.name, this.addAllowedEmotes.name, reason as string))
 	}
 }
