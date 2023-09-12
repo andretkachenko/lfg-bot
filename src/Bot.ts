@@ -2,16 +2,13 @@ import { Client, IntentsBitField, REST } from 'discord.js'
 import { Logger } from './Logger'
 import { EventRegistry } from './EventRegistry'
 import { Config } from './Config'
-import { Messages } from './descriptor'
-import { IHandler } from './handlers/userCommands'
-import { MongoConnector } from './db'
+import { Create, Help, Ping, IHandler } from './handlers'
 
 export class Bot {
 	private client: Client
 	private config: Config
 	private logger: Logger
 	private eventRegistry: EventRegistry
-	private mongoConnector: MongoConnector
 
 	constructor() {
 		this.client = new Client({
@@ -25,20 +22,24 @@ export class Bot {
 		})
 		this.logger = new Logger()
 		this.config = new Config()
-		this.mongoConnector = new MongoConnector(this.config, this.logger)
-		this.eventRegistry = new EventRegistry(this.client, this.mongoConnector)
+		this.eventRegistry = new EventRegistry(this.client)
 	}
 
 	public start(): void {
-		this.logger.logSystem(Messages.startingBot)
+		this.logger.logEvent('Starting bot...')
 
 		const cmdHandlers : Map<string, IHandler> = new Map()
 		const commands = []
-		const handlers = IHandler.getImplementations()
+
+		const handlers = [
+			new Help(this.logger, this.config),
+			new Ping(this.logger),
+			new Create()
+		]
+
 		for (const handler of handlers) {
-			const instance = new handler(this.client, this.logger, this.config, this.mongoConnector)
-			commands.push(instance.slash.toJSON())
-			cmdHandlers.set(instance.cmd, instance)
+			commands.push(handler.slash.toJSON())
+			cmdHandlers.set(handler.cmd, handler)
 		}
 
 		this.eventRegistry.setCommands(cmdHandlers)
