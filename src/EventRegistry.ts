@@ -48,6 +48,7 @@ export class EventRegistry {
 		process.on('exit', () => {
 			this.logger.logEvent('Process exit')
 			this.client.destroy()
+				.catch(reason => this.logger.logError(this.constructor.name, this.registerEvents.name, reason as string))
 		})
 
 		process.on('uncaughtException', (error: Error) => this.handleError(error))
