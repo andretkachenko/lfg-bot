@@ -1,5 +1,5 @@
 # LFG
-[![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)  [![Discord Bots](https://top.gg/api/widget/status/732697892292395110.svg?noavatar=true)](https://top.gg/bot/732697892292395110)  
+[![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org) [![Build](https://github.com/andretkachenko/lfg-bot/actions/workflows/build.yml/badge.svg)](https://github.com/andretkachenko/lfg-bot/actions/workflows/build.yml) [![Discord Bots](https://top.gg/api/widget/status/732697892292395110.svg?noavatar=true)](https://top.gg/bot/732697892292395110)  
 Discord  Bot for event managing and looking for group.  
 This simple bot will let you set up separate lfg channel, and then send event messages to show that you are looking for a group. Or just post these forms in a general - the bot is easily configurable via standard Discord permission rules (see [hints](#hints) below as an example).
 To accept or decline event, a user can click on 👍 or 👎 emoji respectively.  
