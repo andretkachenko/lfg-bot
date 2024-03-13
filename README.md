@@ -40,4 +40,10 @@ You can do it every 12 hours. Voting isn't required, but always appreciated) I w
 3. Fetch all required npm packages using ```npm install```
 4. Configure .env (use .env.sample as a reference if needed)
 5. After any changes in code, in cmd call ```tsc```
-6. Start the app by using ```nodemon build/main.js``` or debug it with your IDE
+6. Start the app by using ```nodemon build/main.js``` or debug it with your IDE  
+
+## Thank you
+If you like the bot and would like to support me:  
+<a href="https://www.buymeacoffee.com/undrimnir" target="_blank">
+<img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" >
+</a>
