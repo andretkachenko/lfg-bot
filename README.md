@@ -20,7 +20,9 @@ List of available commands:
 - `/ping` - Writes ```alive and waiting for your commands``` in the chat if the bot is working. This command is created to check if the bot is responsive.
 
 ## Want to use at your server?
-[![Invite bot to your server](https://i.imgur.com/n8T9oOi.jpg)](https://discord.com/api/oauth2/authorize?client_id=732697892292395110&permissions=268692560&scope=bot)
+[![Invite bot to your server](https://i.imgur.com/n8T9oOi.jpg)](https://discord.com/api/oauth2/authorize?client_id=732697892292395110&permissions=268692560&scope=bot)  
+
+The Discord might not let you add the bot to your server using the link. You can read about why it happened and how to host the bot [here](https://github.com/andretkachenko/lfg-bot/wiki/How-to-host-it-youself).  
 
 ## If you found a bug
 If you have any issue with the bot functionality, feel free to post an issue in this repo - for now, I am intended to maintain this app as long as I don't feel it is stable enough.
